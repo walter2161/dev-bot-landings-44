@@ -1,0 +1,84 @@
+{
+  "app": {
+    "title": "ChatDev",
+    "subtitle": "Landing Page Generator",
+    "poweredBy": "ChatDev AI - Powered by Mistral"
+  },
+  "navigation": {
+    "chat": "Chat",
+    "briefing": "Briefing",
+    "content": "Content",
+    "sellerbot": "Sellerbot",
+    "seo": "SEO",
+    "design": "Design",
+    "layouts": "Layouts",
+    "images": "Images",
+    "customization": "Customization",
+    "aiAssistant": "AI Assistant"
+  },
+  "briefing": {
+    "title": "Landing Page Briefing",
+    "form": "Form",
+    "businessTheme": "Business Theme",
+    "businessThemePlaceholder": "Choose a theme for your business",
+    "businessName": "Business Name",
+    "businessNamePlaceholder": "Ex: Santos Silva Real Estate",
+    "customLogo": "Company Logo (Optional)",
+    "customLogoHelper": "Upload your logo in PNG, JPG or SVG format to customize your landing page",
+    "businessType": "Business Type",
+    "businessTypePlaceholder": "Ex: Real Estate, Developer, Construction",
+    "description": "Business Description",
+    "descriptionPlaceholder": "Briefly describe your business...",
+    "targetAudience": "Target Audience",
+    "targetAudiencePlaceholder": "Ex: Pet owners, Families",
+    "mainGoal": "Main Goal",
+    "mainGoalPlaceholder": "Ex: Increase appointments",
+    "keyServices": "Key Services",
+    "keyServicesPlaceholder": "List the main services...",
+    "whatsapp": "WhatsApp",
+    "whatsappPlaceholder": "Ex: (11) 99999-9999",
+    "address": "Address",
+    "addressPlaceholder": "Street, city, state...",
+    "contactInfo": "Other Contact Information",
+    "contactInfoPlaceholder": "Email, business phone...",
+    "specialOffers": "Special Offers",
+    "specialOffersPlaceholder": "Promotions, discounts, packages...",
+    "updateChatDev": "Update ChatDev",
+    "logoError": "Please select a valid image file"
+  },
+  "chat": {
+    "title": "ChatDev AI - Landing Page Generator",
+    "placeholder": "Type your message..."
+  },
+  "buttons": {
+    "updateLandingPage": "Update Landing Page",
+    "documentation": "Documentation"
+  },
+  "messages": {
+    "landingPageUpdated": "Landing page updated successfully!",
+    "errorUpdating": "Error updating landing page",
+    "noLandingPageToUpdate": "No landing page to update"
+  },
+  "themes": {
+    "restaurante": "Restaurant / Bar / Café",
+    "ecommerce": "E-commerce / Online Store",
+    "servicos": "Professional Services",
+    "saude": "Health / Clinic / Medicine",
+    "educacao": "Education / Course / School",
+    "fitness": "Gym / Fitness / Sports",
+    "beleza": "Beauty / Aesthetics / Salon",
+    "tecnologia": "Technology / Software / IT",
+    "consultoria": "Consulting / Coaching",
+    "imobiliario": "Real Estate / Construction",
+    "advocacia": "Law / Legal",
+    "contabilidade": "Accounting / Financial",
+    "pet": "Pet Shop / Veterinary",
+    "turismo": "Tourism / Travel / Hotel",
+    "eventos": "Events / Parties / Weddings",
+    "automotivo": "Automotive / Workshop",
+    "moda": "Fashion / Clothing / Accessories",
+    "arte": "Art / Design / Creative",
+    "agricultura": "Agriculture / Rural",
+    "marketplace": "Marketplace / Platform"
+  }
+}
