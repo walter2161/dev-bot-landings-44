@@ -117,7 +117,7 @@ export interface SEOData {
   twitterDescription?: string;
   twitterImage?: string;
   canonicalUrl?: string;
-  structuredData?: string;
+  structuredData?: string | { [key: string]: any };
   customHeadTags?: string;
   googleAnalyticsId?: string;
   googleTagManagerId?: string;
