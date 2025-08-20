@@ -18,17 +18,11 @@ const Header = () => {
     <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/5a86d691-a877-4647-b08c-a2bddb5e5e71.png" 
-              alt="PageJet Logo" 
-              className="w-8 h-8 rounded-lg"
-            />
-            <div>
-              <h1 className="text-xl font-bold text-foreground">{t('app.title')}</h1>
-              <p className="text-xs text-muted-foreground">{t('app.subtitle')}</p>
-            </div>
-          </div>
+          <img 
+            src="/lovable-uploads/6381dbd8-479d-45ec-aad0-a9b41c25b1e8.png" 
+            alt="PageJet" 
+            className="h-8"
+          />
         </div>
         
         <nav className="hidden md:flex items-center gap-6">

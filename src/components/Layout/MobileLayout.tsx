@@ -151,21 +151,11 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
         {/* Mobile Header */}
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
           <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/5a86d691-a877-4647-b08c-a2bddb5e5e71.png" 
-                alt="PageJet Logo" 
-                className="w-8 h-8 rounded-lg"
-              />
-              <div>
-                <h1 className="text-lg font-bold text-foreground">
-                  {t('app.title')}
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  {t('app.subtitle')}
-                </p>
-              </div>
-            </div>
+            <img 
+              src="/lovable-uploads/6381dbd8-479d-45ec-aad0-a9b41c25b1e8.png" 
+              alt="PageJet" 
+              className="h-8"
+            />
             
             <div className="flex items-center gap-2">
               <LanguageSelector />
@@ -188,16 +178,11 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
                     {/* Mobile Menu Header */}
                     <div className="p-4 border-b border-border bg-card/50">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <img 
-                            src="/lovable-uploads/5a86d691-a877-4647-b08c-a2bddb5e5e71.png" 
-                            alt="PageJet Logo" 
-                            className="w-6 h-6 rounded-md"
-                          />
-                          <span className="font-semibold text-foreground">
-                            {t('app.title')}
-                          </span>
-                        </div>
+                        <img 
+                          src="/lovable-uploads/6381dbd8-479d-45ec-aad0-a9b41c25b1e8.png" 
+                          alt="PageJet" 
+                          className="h-6"
+                        />
                         <Button
                           variant="ghost"
                           size="sm"

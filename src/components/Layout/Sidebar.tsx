@@ -147,20 +147,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onLandingPageGenerated, businessData:
   return (
     <aside className="w-80 border-r border-border bg-card/50 backdrop-blur">
       <div className="p-4 border-b border-border">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center justify-center mb-4">
           <img 
-            src="/lovable-uploads/5a86d691-a877-4647-b08c-a2bddb5e5e71.png" 
-            alt="PageJet Logo" 
-            className="w-8 h-8 rounded-lg"
+            src="/lovable-uploads/6381dbd8-479d-45ec-aad0-a9b41c25b1e8.png" 
+            alt="PageJet" 
+            className="h-8"
           />
-          <div>
-            <h2 className="font-semibold text-foreground">
-              {t('app.title')}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t('app.subtitle')}
-            </p>
-          </div>
         </div>
         
         <div className="flex gap-0.5 bg-muted p-1 rounded-lg">
