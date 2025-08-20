@@ -1,5 +1,5 @@
-const DEEPSEEK_API_KEY = "sk-e2e18d0b88b64c8e9dd71fcdfdb9d00a";
-const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
+const MISTRAL_API_KEY = "lVs7pOO1VL71usIxZeWdMl0ILn50iKD4";
+const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
 
 export interface BusinessContent {
   title: string;
@@ -89,21 +89,17 @@ export interface SellerbotConfig {
   };
 }
 
-// Usar OpenAI como motor de IA principal
-const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
-
 export class ContentGenerator {
   private async makeRequest(prompt: string): Promise<string> {
     try {
-      // Usar a API OpenAI integrada do Lovable
-      const response = await fetch(OPENAI_API_URL, {
+      const response = await fetch(MISTRAL_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`, // Chave do Lovable
+          "Authorization": `Bearer ${MISTRAL_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "gpt-4.1-2025-04-14",
+          model: "mistral-large-latest",
           messages: [
             { role: "user", content: prompt }
           ],

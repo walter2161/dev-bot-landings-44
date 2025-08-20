@@ -550,7 +550,7 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
         </div>
         
         <div className="mt-2 text-xs text-center text-muted-foreground">
-          Powered by OpenAI
+          Powered by Mistral AI
         </div>
         
         <input
