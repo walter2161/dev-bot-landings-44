@@ -221,16 +221,51 @@ RETORNE APENAS O JSON, SEM EXPLICAÇÕES ADICIONAIS.`;
 
     try {
       const response = await this.makeRequest(prompt);
+      console.log("Raw API response:", response);
+      
+      // Procurar por JSON no response
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       
       if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        return parsed;
+        let jsonString = jsonMatch[0];
+        
+        // Limpar caracteres problemáticos e corrigir JSON malformado
+        jsonString = jsonString
+          .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+          .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+          .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3') // Quote unquoted keys
+          .replace(/:\s*'([^']*)'/g, ': "$1"') // Convert single quotes to double quotes
+          .replace(/\n|\r/g, ' ') // Replace newlines with spaces
+          .trim();
+        
+        console.log("Cleaned JSON string:", jsonString);
+        
+        try {
+          const parsed = JSON.parse(jsonString);
+          return parsed;
+        } catch (parseError) {
+          console.error("JSON parse error:", parseError);
+          console.error("Problematic JSON:", jsonString.slice(0, 1000) + "...");
+          
+          // Tentar parsing mais robusto
+          try {
+            // Remover possíveis caracteres extras no final
+            const cleanedAgain = jsonString.replace(/[^}]*$/, '}');
+            const parsed = JSON.parse(cleanedAgain);
+            return parsed;
+          } catch (secondParseError) {
+            console.error("Second parse attempt failed:", secondParseError);
+            throw new Error("JSON malformado retornado pela API");
+          }
+        }
       }
       
-      throw new Error("Resposta inválida da API");
+      throw new Error("Nenhum JSON válido encontrado na resposta da API");
     } catch (error) {
       console.error("Erro ao gerar conteúdo:", error);
+      if (error.message.includes("JSON")) {
+        throw new Error("Resposta da API em formato inválido. Tente novamente.");
+      }
       throw new Error("Falha ao gerar conteúdo específico do negócio");
     }
   }
