@@ -1,4 +1,4 @@
-const MISTRAL_API_KEY = "lVs7pOO1VL71usIxZeWdMl0ILn50iKD4";
+const MISTRAL_API_KEY = "aynCSftAcQBOlxmtmpJqVzco8K4aaTDQ";
 const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
 
 export interface BusinessContent {
