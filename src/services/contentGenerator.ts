@@ -142,20 +142,95 @@ export class ContentGenerator {
   }
 
   private extractBusinessDataFromRequest(userRequest: string): any {
-    // Extrair informações básicas do pedido
-    const lowerRequest = userRequest.toLowerCase();
-    
-    return {
+    // Extrair informações estruturadas do briefing
+    const data: any = {
       companyName: this.extractCompanyName(userRequest),
-      businessType: this.extractBusinessType(lowerRequest),
+      businessType: this.extractBusinessType(userRequest),
       city: this.extractCity(userRequest),
-      description: this.generateDescription(lowerRequest),
+      description: this.generateDescription(userRequest),
       phone: "(11) 99999-9999",
       email: "contato@empresa.com",
       heroTitle: this.generateHeroTitle(userRequest),
-      heroSubtitle: this.generateHeroSubtitle(lowerRequest),
-      aboutTitle: this.generateAboutTitle(lowerRequest)
+      heroSubtitle: this.generateHeroSubtitle(userRequest),
+      aboutTitle: this.generateAboutTitle(userRequest)
     };
+
+    // Extrair informações específicas do briefing se presentes
+    const briefingPatterns = {
+      companyName: /(?:Criar landing page para|para)\s+([^,]+?)(?:,\s*um?)/i,
+      businessType: /um\s+([^(]+?)(?:\s*\(tema:|$)/i,
+      theme: /tema:\s*([^)]+)/i,
+      description: /Descrição:\s*([^.]*\.?[^.]*\.?[^.]*\.?)(?:\s*Público-alvo:|$)/i,
+      targetAudience: /Público-alvo:\s*([^.]*\.?[^.]*\.?)(?:\s*Objetivo principal:|$)/i,
+      mainGoal: /Objetivo principal:\s*([^.]*\.?[^.]*\.?)(?:\s*Serviços principais:|$)/i,
+      services: /Serviços principais:\s*([\s\S]*?)(?:\s*WhatsApp:|$)/i,
+      whatsapp: /WhatsApp:\s*([^.]*?)(?:\s*Endereço:|$)/i,
+      address: /Endereço:\s*([^.]*?)(?:\s*Contato:|$)/i,
+      contact: /Contato:\s*([^.]*?)(?:\s*Ofertas especiais:|$)/i,
+      specialOffers: /Ofertas especiais:\s*([^.]*?)(?:\s*O cliente enviou|$)/i
+    };
+
+    // Aplicar padrões de extração
+    Object.entries(briefingPatterns).forEach(([key, pattern]) => {
+      const match = userRequest.match(pattern);
+      if (match && match[1]) {
+        const value = match[1].trim();
+        if (value && value !== '') {
+          switch (key) {
+            case 'companyName':
+              data.companyName = value;
+              break;
+            case 'businessType':
+              data.businessType = value.trim();
+              break;
+            case 'description':
+              data.description = value;
+              break;
+            case 'targetAudience':
+              data.targetAudience = value;
+              break;
+            case 'mainGoal':
+              data.mainGoal = value;
+              break;
+            case 'services':
+              data.services = value.replace(/\n/g, ' ').trim();
+              break;
+            case 'whatsapp':
+              data.phone = value.replace(/[^\d\s()-]/g, '').trim() || data.phone;
+              break;
+            case 'address':
+              data.address = value;
+              break;
+            case 'contact':
+              // Extrair email e telefone do campo contato
+              const emailMatch = value.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+              const phoneMatch = value.match(/\(?([0-9]{2})\)?\s?9?[0-9]{4,5}-?[0-9]{4}/);
+              
+              if (emailMatch) data.email = emailMatch[1];
+              if (phoneMatch) data.phone = phoneMatch[0];
+              
+              data.contactInfo = value;
+              break;
+            case 'specialOffers':
+              data.specialOffers = value;
+              break;
+          }
+        }
+      }
+    });
+
+    // Atualizar títulos com base nos dados extraídos
+    if (data.companyName && data.city) {
+      data.heroTitle = `${data.companyName} - ${data.city}`;
+    } else if (data.companyName) {
+      data.heroTitle = data.companyName;
+    }
+
+    if (data.description) {
+      data.heroSubtitle = data.description.substring(0, 150) + (data.description.length > 150 ? '...' : '');
+    }
+
+    return data;
   }
 
   private generateCompleteHTML(businessData: any): string {
@@ -618,8 +693,8 @@ export class ContentGenerator {
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto text-center">
-                    <h2 class="mb-4">Pronto para Começar?</h2>
-                    <p class="lead mb-5">Entre em contato conosco e descubra como podemos ajudar</p>
+                    <h2 class="mb-4">${businessData.mainGoal ? businessData.mainGoal : 'Pronto para Começar?'}</h2>
+                    <p class="lead mb-5">${businessData.specialOffers || 'Entre em contato conosco e descubra como podemos ajudar'}</p>
                     <form class="row g-3 justify-content-center">
                         <div class="col-md-5">
                             <input type="text" class="form-control" placeholder="Seu nome" required>
@@ -631,6 +706,7 @@ export class ContentGenerator {
                             <button type="submit" class="btn btn-light btn-lg">Solicitar Orçamento Gratuito</button>
                         </div>
                     </form>
+                    ${businessData.address ? `<p class="mt-4 small">📍 ${businessData.address}</p>` : ''}
                 </div>
             </div>
         </div>
@@ -648,7 +724,7 @@ export class ContentGenerator {
                     <h5>Contato</h5>
                     <p><i class="fas fa-phone me-2"></i> ${phone}</p>
                     <p><i class="fas fa-envelope me-2"></i> ${email}</p>
-                    <p><i class="fas fa-map-marker-alt me-2"></i> ${city}</p>
+                    ${businessData.address ? `<p><i class="fas fa-map-marker-alt me-2"></i> ${businessData.address}</p>` : `<p><i class="fas fa-map-marker-alt me-2"></i> ${city}</p>`}
                 </div>
                 <div class="col-md-4">
                     <h5>Siga-nos</h5>
@@ -1461,6 +1537,30 @@ Responda de forma natural e profissional, focando no negócio específico. Máxi
   }
 
   private generateServicesCards(businessData: any): string {
+    // Se há serviços específicos do briefing, usar eles
+    if (businessData.services && businessData.services.trim()) {
+      const services = businessData.services.split('\n').filter(s => s.trim()).slice(0, 6);
+      return services.map((service, index) => {
+        const serviceName = service.trim();
+        const icons = ['fas fa-star', 'fas fa-check-circle', 'fas fa-cog', 'fas fa-heart', 'fas fa-shield-alt', 'fas fa-trophy'];
+        const icon = icons[index] || 'fas fa-star';
+        
+        return `
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon">
+                                <i class="${icon}"></i>
+                            </div>
+                            <h4>${serviceName}</h4>
+                            <p>Oferecemos serviços de qualidade em ${serviceName.toLowerCase()} com profissionalismo e dedicação.</p>
+                        </div>
+                    </div>
+                </div>`;
+      }).join('');
+    }
+    
+    // Fallback para serviços padrão baseados no tipo de negócio
     const businessType = businessData.businessType;
     
     const servicesByType = {
@@ -1470,59 +1570,64 @@ Responda de forma natural e profissional, focando no negócio específico. Máxi
         { icon: 'fas fa-heartbeat', title: 'Acompanhamento Médico', desc: 'Acompanhamento contínuo para sua saúde e bem-estar.' },
         { icon: 'fas fa-pills', title: 'Tratamentos Personalizados', desc: 'Planos de tratamento adaptados às suas necessidades.' },
         { icon: 'fas fa-user-md', title: 'Segunda Opinião', desc: 'Orientação médica especializada para tomada de decisões.' },
-        { icon: 'fas fa-calendar-check', title: 'Agendamento Online', desc: 'Sistema prático para marcar suas consultas e exames.' }
+        { icon: 'fas fa-ambulance', title: 'Atendimento de Urgência', desc: 'Atendimento rápido e eficiente em situações de urgência.' }
       ],
       'salão de beleza': [
-        { icon: 'fas fa-cut', title: 'Cortes e Penteados', desc: 'Cortes modernos e penteados para todas as ocasiões.' },
-        { icon: 'fas fa-palette', title: 'Coloração Profissional', desc: 'Técnicas avançadas de coloração com produtos de qualidade.' },
-        { icon: 'fas fa-spa', title: 'Tratamentos Capilares', desc: 'Cuidados especializados para manter seus cabelos saudáveis.' },
-        { icon: 'fas fa-hand-sparkles', title: 'Manicure e Pedicure', desc: 'Cuidados completos para suas unhas com produtos premium.' },
-        { icon: 'fas fa-eye', title: 'Design de Sobrancelhas', desc: 'Modelagem profissional para realçar seu olhar.' },
-        { icon: 'fas fa-leaf', title: 'Tratamentos Naturais', desc: 'Produtos orgânicos e naturais para cuidar da sua beleza.' }
+        { icon: 'fas fa-cut', title: 'Corte e Penteado', desc: 'Cortes modernos e penteados para todas as ocasiões.' },
+        { icon: 'fas fa-palette', title: 'Coloração', desc: 'Técnicas avançadas de coloração e mechas profissionais.' },
+        { icon: 'fas fa-spa', title: 'Tratamentos Capilares', desc: 'Hidratação, reconstrução e nutrição dos cabelos.' },
+        { icon: 'fas fa-hand-sparkles', title: 'Manicure e Pedicure', desc: 'Cuidados completos para suas mãos e pés.' },
+        { icon: 'fas fa-eye', title: 'Design de Sobrancelhas', desc: 'Modelagem e design personalizado de sobrancelhas.' },
+        { icon: 'fas fa-user-tie', title: 'Serviços Masculinos', desc: 'Cortes e tratamentos especializados para homens.' }
       ],
       'escritório de advocacia': [
-        { icon: 'fas fa-gavel', title: 'Direito Civil', desc: 'Assessoria completa em questões civis e contratuais.' },
-        { icon: 'fas fa-briefcase', title: 'Direito Empresarial', desc: 'Suporte jurídico para empresas e empreendedores.' },
-        { icon: 'fas fa-home', title: 'Direito Imobiliário', desc: 'Especialização em transações e conflitos imobiliários.' },
-        { icon: 'fas fa-users', title: 'Direito de Família', desc: 'Orientação sensível em questões familiares e sucessórias.' },
-        { icon: 'fas fa-balance-scale', title: 'Mediação e Arbitragem', desc: 'Soluções alternativas para resolução de conflitos.' },
-        { icon: 'fas fa-file-contract', title: 'Contratos e Documentos', desc: 'Elaboração e revisão de contratos e documentos legais.' }
+        { icon: 'fas fa-balance-scale', title: 'Direito Civil', desc: 'Assessoria jurídica em questões civis e contratuais.' },
+        { icon: 'fas fa-briefcase', title: 'Direito Empresarial', desc: 'Consultoria jurídica para empresas e negócios.' },
+        { icon: 'fas fa-gavel', title: 'Direito Trabalhista', desc: 'Defesa em questões trabalhistas e previdenciárias.' },
+        { icon: 'fas fa-home', title: 'Direito Imobiliário', desc: 'Assessoria em compra, venda e locação de imóveis.' },
+        { icon: 'fas fa-users', title: 'Direito de Família', desc: 'Orientação em questões familiares e sucessórias.' },
+        { icon: 'fas fa-shield-alt', title: 'Direito Penal', desc: 'Defesa criminal com experiência e competência.' }
       ],
       'agência de marketing': [
-        { icon: 'fas fa-search', title: 'SEO e SEM', desc: 'Otimização para mecanismos de busca e anúncios pagos.' },
+        { icon: 'fas fa-bullhorn', title: 'Marketing Digital', desc: 'Estratégias digitais para impulsionar seu negócio online.' },
+        { icon: 'fas fa-search', title: 'SEO e SEM', desc: 'Otimização para mecanismos de busca e campanhas pagas.' },
         { icon: 'fas fa-share-alt', title: 'Redes Sociais', desc: 'Gestão profissional das suas redes sociais.' },
-        { icon: 'fas fa-bullhorn', title: 'Publicidade Digital', desc: 'Campanhas direcionadas para o seu público-alvo.' },
-        { icon: 'fas fa-chart-line', title: 'Analytics e Relatórios', desc: 'Análise detalhada dos resultados das suas campanhas.' },
-        { icon: 'fas fa-pencil-alt', title: 'Criação de Conteúdo', desc: 'Conteúdo estratégico para engajar sua audiência.' },
-        { icon: 'fas fa-laptop', title: 'Desenvolvimento Web', desc: 'Sites responsivos e otimizados para conversão.' }
+        { icon: 'fas fa-chart-line', title: 'Análise de Dados', desc: 'Relatórios e análises para otimizar seus resultados.' },
+        { icon: 'fas fa-paint-brush', title: 'Design Gráfico', desc: 'Criação de materiais visuais impactantes.' },
+        { icon: 'fas fa-video', title: 'Produção de Conteúdo', desc: 'Conteúdo engajante para suas campanhas.' }
       ],
-      'default': [
-        { icon: 'fas fa-star', title: 'Serviço Premium', desc: 'Atendimento diferenciado com foco na excelência.' },
-        { icon: 'fas fa-clock', title: 'Agilidade', desc: 'Entrega rápida sem comprometer a qualidade.' },
-        { icon: 'fas fa-shield-alt', title: 'Confiança', desc: 'Transparência e segurança em todos os processos.' },
-        { icon: 'fas fa-handshake', title: 'Relacionamento', desc: 'Construímos parcerias duradouras com nossos clientes.' },
-        { icon: 'fas fa-cog', title: 'Personalização', desc: 'Soluções adaptadas às suas necessidades específicas.' },
-        { icon: 'fas fa-headset', title: 'Suporte 24/7', desc: 'Atendimento disponível quando você precisar.' }
+      'imobiliária': [
+        { icon: 'fas fa-home', title: 'Venda de Imóveis', desc: 'Assessoria completa na venda do seu imóvel.' },
+        { icon: 'fas fa-key', title: 'Locação', desc: 'Administração e locação de propriedades.' },
+        { icon: 'fas fa-search-location', title: 'Busca Personalizada', desc: 'Encontramos o imóvel ideal para você.' },
+        { icon: 'fas fa-calculator', title: 'Avaliação', desc: 'Avaliação precisa do valor do seu imóvel.' },
+        { icon: 'fas fa-handshake', title: 'Consultoria', desc: 'Orientação especializada em investimentos imobiliários.' },
+        { icon: 'fas fa-file-contract', title: 'Documentação', desc: 'Suporte completo com documentação e contratos.' }
       ]
     };
     
-    const services = servicesByType[businessType] || servicesByType['default'];
+    const services = servicesByType[businessType] || [
+      { icon: 'fas fa-star', title: 'Serviço Premium', desc: 'Oferecemos serviços de alta qualidade.' },
+      { icon: 'fas fa-check-circle', title: 'Atendimento Personalizado', desc: 'Cada cliente recebe atenção individualizada.' },
+      { icon: 'fas fa-cog', title: 'Soluções Eficientes', desc: 'Processos otimizados para melhores resultados.' },
+      { icon: 'fas fa-heart', title: 'Compromisso Total', desc: 'Dedicação completa aos seus objetivos.' },
+      { icon: 'fas fa-shield-alt', title: 'Segurança e Confiança', desc: 'Trabalho baseado em transparência e ética.' },
+      { icon: 'fas fa-trophy', title: 'Resultados Garantidos', desc: 'Foco em entregar resultados excepcionais.' }
+    ];
     
     return services.map(service => `
-      <div class="col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body text-center p-4">
-            <div class="service-icon">
-              <i class="${service.icon}"></i>
-            </div>
-            <h4>${service.title}</h4>
-            <p>${service.desc}</p>
-          </div>
-        </div>
-      </div>
-    `).join('');
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon">
+                                <i class="${service.icon}"></i>
+                            </div>
+                            <h4>${service.title}</h4>
+                            <p>${service.desc}</p>
+                        </div>
+                    </div>
+                </div>`).join('');
   }
-
   private generateTestimonials(businessData: any): string {
     const businessType = businessData.businessType;
     
@@ -1599,6 +1704,9 @@ Responda de forma natural e profissional, focando no negócio específico. Máxi
   }
 
   private generateJavaScript(businessData: any, phone: string, email: string): string {
+    const whatsappNumber = businessData.phone?.replace(/[^\d]/g, '') || phone.replace(/[^\d]/g, '');
+    const companyName = businessData.companyName || 'Empresa';
+    
     return `
 /* =========================
    1. Forçar carregamento de imagens
@@ -1608,6 +1716,254 @@ function forceImageLoad(imgElement, fallbackUrl) {
         console.log("Falha ao carregar imagem, tentando fallback...");
         this.src = fallbackUrl;
     };
+}
+
+function checkImagesLoaded() {
+    const images = document.querySelectorAll('img');
+    let allLoaded = true;
+    images.forEach(img => {
+        if (!img.complete) {
+            allLoaded = false;
+            console.log('Imagem não carregada: ' + img.src);
+        }
+    });
+    console.log(allLoaded ? "Todas as imagens carregadas!" : "Algumas imagens falharam.");
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const images = document.querySelectorAll('img');
+    images.forEach(img => forceImageLoad(img, 'https://via.placeholder.com/150'));
+    setTimeout(checkImagesLoaded, 2000);
+});
+
+/* =========================
+   2. Contador Animado
+========================== */
+const counters = document.querySelectorAll('.counter');
+const speed = 200;
+
+function countUp(counter) {
+    const target = +counter.getAttribute('data-target');
+    const count = +counter.innerText;
+    const increment = target / speed;
+
+    if (count < target) {
+        counter.innerText = Math.ceil(count + increment);
+        setTimeout(() => countUp(counter), 10);
+    } else {
+        counter.innerText = target + '%';
+    }
+}
+
+const observerOptions = { threshold: 0.7 };
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            countUp(entry.target);
+            observer.unobserve(entry.target);
+        }
+    });
+}, observerOptions);
+
+counters.forEach(counter => observer.observe(counter));
+
+/* =========================
+   3. FAQ Accordion
+========================== */
+document.querySelectorAll('.faq-item').forEach(item => {
+    const question = item.querySelector('.faq-question');
+    question.addEventListener('click', () => {
+        document.querySelectorAll('.faq-item.active').forEach(activeItem => {
+            if (activeItem !== item) activeItem.classList.remove('active');
+        });
+        item.classList.toggle('active');
+    });
+});
+
+/* =========================
+   4. Envio de Formulário + WhatsApp
+========================== */
+const form = document.querySelector('form');
+if (form) {
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = this.querySelector('input[type="text"]').value;
+        const emailInput = this.querySelector('input[type="email"]').value;
+
+        if (name && emailInput) {
+            const formContainer = this.parentElement;
+            formContainer.innerHTML = '<div class="alert alert-success" role="alert"><h4 class="alert-heading">Obrigado, ' + name + '!</h4><p>Recebemos sua solicitação. Entraremos em contato no e-mail ' + emailInput + ' em até 24 horas.</p></div>';
+            console.log('Form submitted:', { name, email: emailInput });
+
+            // Também envia para WhatsApp
+            const message = 'Novo formulário recebido:%0ANome: ' + name + '%0AEmail: ' + emailInput;
+            window.open('https://wa.me/55${whatsappNumber}?text=' + message, '_blank');
+        }
+    });
+}
+
+/* =========================
+   5. Botão e Menu Flutuante + Controle Chat
+========================== */
+const floatingBtn = document.getElementById('floatingBtn');
+const floatingMenu = document.getElementById('floatingMenu');
+const chatOption = document.getElementById('chatOption');
+const whatsappOption = document.getElementById('whatsappOption');
+const chatModal = document.getElementById('chatModal');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+
+function openChat() {
+    chatModal.style.display = 'flex';
+    loadChatHistory();
+}
+
+function closeChat() {
+    chatModal.style.display = 'none';
+}
+
+function toggleMenu() {
+    floatingMenu.style.display = floatingMenu.style.display === 'flex' ? 'none' : 'flex';
+}
+
+if (floatingBtn) {
+    floatingBtn.addEventListener('click', () => {
+        toggleMenu();
+    });
+}
+
+if (chatOption) {
+    chatOption.addEventListener('click', () => {
+        floatingMenu.style.display = 'none';
+        openChat();
+    });
+}
+
+if (whatsappOption) {
+    whatsappOption.addEventListener('click', () => {
+        floatingMenu.style.display = 'none';
+        const message = 'Olá, gostaria de mais informações sobre os serviços da ${companyName}.';
+        window.open('https://wa.me/55${whatsappNumber}?text=' + encodeURIComponent(message), '_blank');
+    });
+}
+
+document.addEventListener('click', (e) => {
+    if (
+        chatModal.style.display === 'flex' &&
+        !chatModal.contains(e.target) &&
+        !floatingMenu.contains(e.target) &&
+        !floatingBtn.contains(e.target)
+    ) {
+        closeChat();
+    }
+});
+
+/* =========================
+   6. Chat simples + histórico
+========================== */
+let chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+let userMessagesCount = 0;
+let meetingStep = 0;
+let meetingData = { name: '', email: '', phone: '' };
+
+function saveChatHistory() {
+    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+}
+
+function loadChatHistory() {
+    chatMessages.innerHTML = '';
+    chatHistory.forEach(msg => addMessage(msg.sender, msg.text, false));
+}
+
+function addMessage(sender, message, save = true) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.innerHTML = '<strong>' + sender + ':</strong> ' + message;
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    if (save) {
+        chatHistory.push({ sender, text: message });
+        saveChatHistory();
+    }
+}
+
+async function sendSimpleResponse(message) {
+    const responses = [
+        'Olá! Como posso ajudá-lo hoje?',
+        'Temos diversos serviços disponíveis. Qual seu interesse?',
+        'Nossos profissionais estão prontos para atendê-lo.',
+        'Gostaria de agendar uma consulta?',
+        'Entre em contato pelo WhatsApp para mais informações: ${phone}'
+    ];
+    
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            resolve(randomResponse);
+        }, 1000);
+    });
+}
+
+async function handleSendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    addMessage('Você', message);
+    chatInput.value = '';
+
+    if (meetingStep > 0) {
+        if (meetingStep === 1) {
+            meetingData.name = message;
+            addMessage('Atendente', 'Qual seu e-mail?');
+            meetingStep = 2;
+            return;
+        } else if (meetingStep === 2) {
+            meetingData.email = message;
+            addMessage('Atendente', 'E seu telefone para contato?');
+            meetingStep = 3;
+            return;
+        } else if (meetingStep === 3) {
+            meetingData.phone = message;
+            addMessage('Atendente', 'Obrigado! Un representante entrará em contato em breve.');
+            const wppMessage = 'Agendamento solicitado:%0ANome: ' + meetingData.name + '%0AEmail: ' + meetingData.email + '%0ATelefone: ' + meetingData.phone;
+            window.open('https://wa.me/55${whatsappNumber}?text=' + wppMessage, '_blank');
+            meetingStep = 0;
+            return;
+        }
+    }
+
+    if (meetingStep === -1) {
+        if (/sim/i.test(message)) {
+            meetingStep = 1;
+            addMessage('Atendente', 'Ótimo! Qual seu nome?');
+            return;
+        } else if (/não/i.test(message)) {
+            meetingStep = 0;
+            addMessage('Atendente', 'Tudo bem! Continuamos por aqui então.');
+            return;
+        }
+    }
+
+    userMessagesCount++;
+    const response = await sendSimpleResponse(message);
+    addMessage('Atendente', response);
+
+    if (userMessagesCount % 3 === 0) {
+        addMessage('Atendente', 'Deseja marcar uma reunião com um representante? (sim/não)');
+        meetingStep = -1;
+    }
+}
+
+if (chatSend) chatSend.addEventListener('click', handleSendMessage);
+if (chatInput) chatInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') handleSendMessage();
+});
+    `;
+  }
+}
+  }
 }
 
 function checkImagesLoaded() {
