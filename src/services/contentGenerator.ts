@@ -124,11 +124,11 @@ export class ContentGenerator {
   }
 
   async generateBusinessContent(userRequest: string): Promise<BusinessContent> {
-    const prompt = `INSTRUÇÃO CRÍTICA: Você deve criar conteúdo EXCLUSIVAMENTE sobre o negócio específico solicitado pelo usuário. PROIBIDO incluir qualquer conteúdo sobre marketing digital, agências ou serviços de marketing.
+    const prompt = `INSTRUÇÃO CRÍTICA: Você DEVE retornar APENAS um JSON válido, sem texto adicional antes ou depois.
 
 SOLICITAÇÃO DO USUÁRIO: "${userRequest}"
 
-Crie um JSON seguindo EXATAMENTE este formato com conteúdo 100% específico do negócio solicitado:
+Gere um JSON válido e completo seguindo EXATAMENTE esta estrutura:
 
 {
   "title": "Nome/título específico do negócio solicitado",
@@ -180,93 +180,106 @@ Crie um JSON seguindo EXATAMENTE este formato com conteúdo 100% específico do 
     }
   ],
   "colors": {
-    "primary": "cor HEX apropriada para o tipo de negócio",
-    "secondary": "cor HEX complementar",
-    "accent": "cor HEX de destaque"
+    "primary": "#HEXCOLOR",
+    "secondary": "#HEXCOLOR",
+    "accent": "#HEXCOLOR"
   },
   "images": {
-    "logo": "logotipo da empresa, imagem clara do logo",
+    "logo": "logotipo da empresa",
     "hero": "foto realista específica do negócio",
-    "motivation": "imagem dos diferenciais do negócio",
-    "target": "foto do público-alvo específico",
-    "method": "imagem do processo/funcionamento",
-    "results": "foto dos resultados/benefícios",
-    "access": "imagem de acesso/localização",
-    "investment": "imagem relacionada a preços/ofertas"
+    "motivation": "imagem dos diferenciais",
+    "target": "foto do público-alvo",
+    "method": "imagem do processo",
+    "results": "foto dos resultados",
+    "access": "imagem de acesso",
+    "investment": "imagem de preços"
   },
   "contact": {
-    "email": "email@negocio.com (email específico do negócio)",
-    "phone": "(XX) XXXXX-XXXX (telefone comercial com DDD)",
-    "address": "Endereço completo: Rua, número, bairro, cidade - UF, CEP",
+    "email": "email@negocio.com",
+    "phone": "(XX) XXXXX-XXXX",
+    "address": "Endereço completo",
     "socialMedia": {
-      "whatsapp": "(XX) 9XXXX-XXXX (WhatsApp comercial com DDD)",
-      "instagram": "@perfil_do_negocio",
-      "facebook": "facebook.com/paginadonegocio"
+      "whatsapp": "(XX) 9XXXX-XXXX",
+      "instagram": "@perfil_negocio",
+      "facebook": "facebook.com/pagina"
     }
   },
   "sellerbot": {
-    "name": "Nome apropriado para assistente do negócio",
-    "personality": "Personalidade adequada ao negócio",
-    "knowledge": ["conhecimentos específicos do negócio"],
+    "name": "Nome do assistente",
+    "personality": "Personalidade adequada",
+    "knowledge": ["conhecimento1", "conhecimento2"],
     "responses": {
-      "greeting": "Saudação específica do negócio",
-      "services": "Apresentação dos produtos/serviços",
+      "greeting": "Saudação específica",
+      "services": "Apresentação dos serviços",
       "pricing": "Informação sobre preços",
-      "appointment": "Resposta sobre agendamento/compra"
+      "appointment": "Resposta sobre agendamento"
     }
   }
 }
 
-RETORNE APENAS O JSON, SEM EXPLICAÇÕES ADICIONAIS.`;
+IMPORTANTE: Retorne APENAS o JSON válido, sem explicações, sem markdown, sem comentários.`;
 
     try {
       const response = await this.makeRequest(prompt);
       console.log("Raw API response:", response);
       
-      // Procurar por JSON no response
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      // Encontrar o JSON na resposta
+      let jsonString = response.trim();
       
-      if (jsonMatch) {
-        let jsonString = jsonMatch[0];
+      // Se há texto antes do JSON, remover
+      const jsonStartIndex = jsonString.indexOf('{');
+      if (jsonStartIndex > 0) {
+        jsonString = jsonString.substring(jsonStartIndex);
+      }
+      
+      // Se há texto depois do JSON, remover
+      const jsonEndIndex = jsonString.lastIndexOf('}');
+      if (jsonEndIndex !== -1 && jsonEndIndex < jsonString.length - 1) {
+        jsonString = jsonString.substring(0, jsonEndIndex + 1);
+      }
+      
+      // Limpar caracteres problemáticos
+      jsonString = jsonString
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+        .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+        .replace(/\n\s*\n/g, '\n') // Remove empty lines
+        .replace(/\t/g, '  ') // Replace tabs with spaces
+        .trim();
+      
+      console.log("Cleaned JSON string:", jsonString.substring(0, 200) + "...");
+      
+      try {
+        const parsed = JSON.parse(jsonString);
         
-        // Limpar caracteres problemáticos e corrigir JSON malformado
-        jsonString = jsonString
-          .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
-          .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
-          .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3') // Quote unquoted keys
-          .replace(/:\s*'([^']*)'/g, ': "$1"') // Convert single quotes to double quotes
-          .replace(/\n|\r/g, ' ') // Replace newlines with spaces
-          .trim();
+        // Validar estrutura básica
+        if (!parsed.title || !parsed.sections || !Array.isArray(parsed.sections)) {
+          throw new Error("Estrutura JSON inválida");
+        }
         
-        console.log("Cleaned JSON string:", jsonString);
+        return parsed;
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError);
+        console.error("Problematic JSON:", jsonString);
         
+        // Última tentativa: usar regex para corrigir problemas comuns
         try {
-          const parsed = JSON.parse(jsonString);
-          return parsed;
-        } catch (parseError) {
-          console.error("JSON parse error:", parseError);
-          console.error("Problematic JSON:", jsonString.slice(0, 1000) + "...");
+          let fixedJson = jsonString
+            .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":') // Quote unquoted keys
+            .replace(/:\s*'([^']*)'/g, ': "$1"') // Convert single quotes to double quotes
+            .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+            .replace(/([^\\])\\([^"\\\/bfnrt])/g, '$1\\\\$2'); // Fix unescaped backslashes
           
-          // Tentar parsing mais robusto
-          try {
-            // Remover possíveis caracteres extras no final
-            const cleanedAgain = jsonString.replace(/[^}]*$/, '}');
-            const parsed = JSON.parse(cleanedAgain);
-            return parsed;
-          } catch (secondParseError) {
-            console.error("Second parse attempt failed:", secondParseError);
-            throw new Error("JSON malformado retornado pela API");
-          }
+          const parsed = JSON.parse(fixedJson);
+          console.log("Successfully parsed with fixes");
+          return parsed;
+        } catch (secondParseError) {
+          console.error("Second parse attempt failed:", secondParseError);
+          throw new Error("Formato JSON inválido retornado pela API. Tente novamente.");
         }
       }
-      
-      throw new Error("Nenhum JSON válido encontrado na resposta da API");
     } catch (error) {
       console.error("Erro ao gerar conteúdo:", error);
-      if (error.message.includes("JSON")) {
-        throw new Error("Resposta da API em formato inválido. Tente novamente.");
-      }
-      throw new Error("Falha ao gerar conteúdo específico do negócio");
+      throw new Error("Falha ao gerar conteúdo do negócio. Tente novamente.");
     }
   }
 
