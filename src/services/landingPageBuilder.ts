@@ -586,6 +586,34 @@ export class LandingPageBuilder {
             color: ${businessData.colors.primary};
         }
         
+        /* PageJet Signature */
+        .pagejet-signature {
+            background: #000;
+            padding: 15px 0;
+            border-top: 2px solid #333;
+        }
+        
+        .pagejet-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        .pagejet-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+        
+        .pagejet-content strong {
+            color: #ff6b35;
+            font-weight: 600;
+        }
+        
         /* Animations */
         @keyframes fadeInUp {
             from {
@@ -756,6 +784,17 @@ export class LandingPageBuilder {
                     <a href="#" onclick="openLGPD()">LGPD</a>
                 </div>
                 <p>&copy; 2024 ${businessData.title}. Todos os direitos reservados.</p>
+            </div>
+        </div>
+        
+        <!-- PageJet Signature -->
+        <div class="pagejet-signature">
+            <div class="container">
+                <div class="pagejet-content">
+                    <img src="/images/mascote-pagejet.png" alt="PageJet Mascot" class="pagejet-logo" 
+                         onerror="this.style.display='none';">
+                    <span>Criado com <strong>PageJet</strong></span>
+                </div>
             </div>
         </div>
     </footer>
