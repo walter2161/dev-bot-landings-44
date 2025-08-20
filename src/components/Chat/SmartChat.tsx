@@ -126,8 +126,11 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
         // Modo geração de landing page - gerar HTML diretamente
         addMessage('assistant', 'Analisando sua solicitação e criando landing page...');
 
+        // Criar um briefing estruturado baseado no tipo de negócio
+        const briefingData = createBriefingFromBusinessType(messageToSend);
+
         // Gerar HTML diretamente
-        const html = await contentGenerator.generateLandingPageHTML(messageToSend);
+        const html = await contentGenerator.generateLandingPageHTML(briefingData);
         
         // Extrair dados básicos do HTML para compatibilidade
         const businessData = contentGenerator.extractBusinessDataFromHTML(html);
@@ -135,7 +138,7 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
         // Notificar componente pai
         onLandingPageGenerated(html, businessData);
 
-        addMessage('assistant', `✅ Landing page criada com sucesso! Você pode visualizar no preview e fazer o download.`);
+        addMessage('assistant', `✅ Landing page para ${messageToSend} criada com sucesso! Você pode visualizar no preview e fazer o download.`);
         
         toast.success('Landing page HTML gerada com sucesso!');
       }
@@ -324,6 +327,93 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
       contact,
       sellerbot
     } as BusinessContent;
+  };
+
+  const createBriefingFromBusinessType = (businessType: string): any => {
+    const type = businessType.toLowerCase();
+    
+    if (type.includes('clínica') || type.includes('clinica') || type.includes('saúde') || type.includes('saude')) {
+      return {
+        companyName: 'Clínica Saúde+',
+        businessType: 'Clínica de Saúde',
+        description: 'Clínica médica especializada em cuidados com a saúde',
+        services: 'Consultas médicas, exames, procedimentos',
+        city: 'São Paulo',
+        phone: '(11) 3456-7890',
+        email: 'contato@clinicasaude.com.br'
+      };
+    }
+
+    if (type.includes('corretor') || type.includes('imóv') || type.includes('imovel')) {
+      return {
+        companyName: 'Imóveis Prime',
+        businessType: 'Corretor de Imóveis',
+        description: 'Corretor especializado em compra, venda e locação de imóveis',
+        services: 'Venda, compra, locação de imóveis',
+        city: 'São Paulo',
+        phone: '(11) 9876-5432',
+        email: 'contato@imoveisprime.com.br'
+      };
+    }
+
+    if (type.includes('lançamento') || type.includes('lancamento')) {
+      return {
+        companyName: 'Residencial Vista Verde',
+        businessType: 'Lançamento Imobiliário',
+        description: 'Novo empreendimento residencial com localização privilegiada',
+        services: 'Apartamentos 2 e 3 dormitórios, área de lazer completa',
+        city: 'São Paulo',
+        phone: '(11) 2345-6789',
+        email: 'vendas@vistaverde.com.br'
+      };
+    }
+
+    if (type.includes('produto') || type.includes('info')) {
+      return {
+        companyName: 'Curso Digital Pro',
+        businessType: 'Info Produto',
+        description: 'Curso online que transforma vidas e gera resultados reais',
+        services: 'Curso online, mentoria, suporte',
+        city: 'Online',
+        phone: '(11) 1234-5678',
+        email: 'contato@cursopro.com.br'
+      };
+    }
+
+    if (type.includes('roupa') || type.includes('moda') || type.includes('loja')) {
+      return {
+        companyName: 'Moda Elegante',
+        businessType: 'Loja de Roupa',
+        description: 'Loja de roupas femininas e masculinas com as últimas tendências',
+        services: 'Roupas femininas, masculinas, acessórios',
+        city: 'São Paulo',
+        phone: '(11) 8765-4321',
+        email: 'contato@modaelegante.com.br'
+      };
+    }
+
+    if (type.includes('restaurante') || type.includes('comida') || type.includes('food')) {
+      return {
+        companyName: 'Restaurante Sabor & Arte',
+        businessType: 'Restaurante',
+        description: 'Restaurante com culinária especial e ambiente aconchegante',
+        services: 'Pratos principais, entradas, sobremesas, drinks',
+        city: 'São Paulo',
+        phone: '(11) 5432-1098',
+        email: 'contato@saborarte.com.br'
+      };
+    }
+
+    // Fallback para outros tipos
+    return {
+      companyName: businessType,
+      businessType: businessType,
+      description: `Negócio especializado em ${businessType.toLowerCase()}`,
+      services: 'Serviços especializados',
+      city: 'São Paulo',
+      phone: '(11) 99999-9999',
+      email: 'contato@empresa.com.br'
+    };
   };
 
   const handleImportClick = () => {
