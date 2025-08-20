@@ -33,6 +33,7 @@ export interface BusinessContent {
   subtitle?: string;
   heroText?: string;
   ctaText?: string;
+  layouts?: any;
   sections?: Array<{
     id: string;
     title: string;
@@ -98,18 +99,11 @@ export interface BusinessContent {
     twitterTitle?: string;
     twitterDescription?: string;
     twitterImage?: string;
-    googleAnalytics?: string;
-    facebookPixel?: string;
-    customScripts?: string;
-    structuredData?: string;
     canonicalUrl?: string;
-    googleAnalyticsId?: string;
     googleTagManagerId?: string;
-    facebookPixelId?: string;
-    customHeadTags?: string;
     customBodyTags?: string;
+    structuredData?: string | { [key: string]: any };
   };
-  layouts?: string;
 }
 
 export interface SEOData {
@@ -123,14 +117,14 @@ export interface SEOData {
   twitterDescription?: string;
   twitterImage?: string;
   canonicalUrl?: string;
+  structuredData?: string;
+  customHeadTags?: string;
   googleAnalyticsId?: string;
   googleTagManagerId?: string;
   facebookPixelId?: string;
-  customHeadTags?: string;
-  structuredData?: string;
 }
 
-export class ContentGenerator {
+class ContentGenerator {
   private async makeRequest(prompt: string): Promise<string> {
     try {
       const response = await fetch(MISTRAL_API_URL, {
@@ -142,21 +136,18 @@ export class ContentGenerator {
         body: JSON.stringify({
           model: "mistral-large-latest",
           messages: [
-            { role: "user", content: prompt }
+            {
+              role: "user",
+              content: prompt
+            }
           ],
+          max_tokens: 2000,
           temperature: 0.7,
-          max_tokens: 4000,
         }),
       });
 
       if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error(`API error: Limite de uso excedido. Aguarde alguns minutos e tente novamente.`);
-        }
-        if (response.status === 402) {
-          throw new Error(`API error: Saldo insuficiente na chave API.`);
-        }
-        throw new Error(`API error: ${response.statusText}`);
+        throw new Error(`API error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -278,350 +269,150 @@ export class ContentGenerator {
     return data;
   }
 
-  private getBusinessConfig(businessType: string, businessData: BriefingData): any {
-    const type = businessType.toLowerCase();
-    
-    // Configurações específicas por tipo de negócio
-    if (type.includes('corretor') || type.includes('imóv') || type.includes('imovel')) {
-      return {
-        subtitle: 'Corretor de Imóveis',
-        heroDescription: `Encontre o imóvel dos seus sonhos em ${businessData.city}. Especialista em compra, venda e locação com atendimento personalizado.`,
-        servicesTitle: 'Nossos Serviços Imobiliários',
-        servicesDescription: 'Soluções completas para todas as suas necessidades imobiliárias',
-        aboutDescription: `Com anos de experiência no mercado imobiliário de ${businessData.city}, oferecemos atendimento personalizado e conhecimento profundo do mercado local.`,
-        heroImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        aboutImage: 'https://images.unsplash.com/photo-1582407947304-fd86f028998c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        services: [
-          { title: 'Venda de Imóveis', description: 'Assessoria completa na venda do seu imóvel com avaliação gratuita', icon: 'fas fa-home' },
-          { title: 'Compra de Imóveis', description: 'Encontramos o imóvel perfeito para você com as melhores condições', icon: 'fas fa-key' },
-          { title: 'Locação', description: 'Administração completa de locação para proprietários e locatários', icon: 'fas fa-handshake' }
-        ]
-      };
-    }
-
-    if (type.includes('lançamento') || type.includes('lancamento')) {
-      return {
-        subtitle: 'Lançamento Imobiliário',
-        heroDescription: `Conheça o mais novo empreendimento em ${businessData.city}. Modernidade, qualidade e localização privilegiada.`,
-        servicesTitle: 'Diferenciais do Empreendimento',
-        servicesDescription: 'Conheça tudo que este lançamento tem a oferecer',
-        aboutDescription: 'Um empreendimento pensado nos mínimos detalhes para oferecer qualidade de vida e valorização do seu investimento.',
-        heroImage: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        aboutImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        services: [
-          { title: 'Localização Privilegiada', description: 'Próximo aos principais pontos da cidade', icon: 'fas fa-map-marker-alt' },
-          { title: 'Área de Lazer Completa', description: 'Piscina, academia, salão de festas e muito mais', icon: 'fas fa-swimming-pool' },
-          { title: 'Apartamentos Modernos', description: 'Plantas otimizadas e acabamentos de primeira linha', icon: 'fas fa-building' }
-        ]
-      };
-    }
-
-    if (type.includes('clínica') || type.includes('clinica') || type.includes('saúde') || type.includes('saude')) {
-      return {
-        subtitle: 'Clínica de Saúde',
-        heroDescription: `Cuidamos da sua saúde com profissionais especializados e equipamentos modernos em ${businessData.city}.`,
-        servicesTitle: 'Nossos Serviços Médicos',
-        servicesDescription: 'Atendimento médico especializado com qualidade e humanização',
-        aboutDescription: 'Nossa clínica oferece atendimento médico de excelência, com profissionais qualificados e tecnologia de ponta.',
-        heroImage: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        aboutImage: 'https://images.unsplash.com/photo-1551076805-e1869033e561?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        services: [
-          { title: 'Consultas Especializadas', description: 'Médicos especialistas em diversas áreas', icon: 'fas fa-stethoscope' },
-          { title: 'Exames Diagnósticos', description: 'Equipamentos modernos para diagnósticos precisos', icon: 'fas fa-x-ray' },
-          { title: 'Procedimentos', description: 'Cirurgias e procedimentos com segurança', icon: 'fas fa-procedures' }
-        ]
-      };
-    }
-
-    if (type.includes('produto') || type.includes('info')) {
-      return {
-        subtitle: 'Produto Digital',
-        heroDescription: `Transforme sua vida com nosso produto exclusivo. Resultados comprovados e satisfação garantida.`,
-        servicesTitle: 'O que você vai receber',
-        servicesDescription: 'Conteúdo completo e suporte especializado',
-        aboutDescription: 'Produto desenvolvido por especialistas para entregar resultados reais e transformar sua realidade.',
-        heroImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        aboutImage: 'https://images.unsplash.com/photo-1553484771-371a605b060b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        services: [
-          { title: 'Conteúdo Exclusivo', description: 'Material desenvolvido por especialistas', icon: 'fas fa-book' },
-          { title: 'Suporte Direto', description: 'Acesso direto aos criadores do produto', icon: 'fas fa-headset' },
-          { title: 'Garantia Total', description: 'Satisfação garantida ou seu dinheiro de volta', icon: 'fas fa-shield-alt' }
-        ]
-      };
-    }
-
-    if (type.includes('roupa') || type.includes('moda') || type.includes('loja')) {
-      return {
-        subtitle: 'Moda & Estilo',
-        heroDescription: `As últimas tendências da moda em ${businessData.city}. Qualidade, estilo e preços especiais.`,
-        servicesTitle: 'Nossa Coleção',
-        servicesDescription: 'Peças selecionadas para todos os estilos e ocasiões',
-        aboutDescription: 'Loja especializada em moda com peças cuidadosamente selecionadas para expressar seu estilo único.',
-        heroImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        aboutImage: 'https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        services: [
-          { title: 'Roupas Femininas', description: 'Vestidos, blusas, calças e acessórios', icon: 'fas fa-tshirt' },
-          { title: 'Roupas Masculinas', description: 'Camisas, calças, bermudas e mais', icon: 'fas fa-user-tie' },
-          { title: 'Acessórios', description: 'Bolsas, sapatos e complementos', icon: 'fas fa-gem' }
-        ]
-      };
-    }
-
-    if (type.includes('restaurante') || type.includes('comida') || type.includes('food')) {
-      return {
-        subtitle: 'Restaurante',
-        heroDescription: `A melhor gastronomia de ${businessData.city}. Pratos especiais, ambiente aconchegante e atendimento excepcional.`,
-        servicesTitle: 'Nosso Cardápio',
-        servicesDescription: 'Sabores únicos preparados com ingredientes selecionados',
-        aboutDescription: 'Restaurante que combina tradição culinária com inovação, oferecendo uma experiência gastronômica inesquecível.',
-        heroImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        aboutImage: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-        services: [
-          { title: 'Pratos Principais', description: 'Carnes, peixes e pratos vegetarianos', icon: 'fas fa-utensils' },
-          { title: 'Entradas e Petiscos', description: 'Aperitivos especiais da casa', icon: 'fas fa-cheese' },
-          { title: 'Sobremesas', description: 'Doces artesanais irresistíveis', icon: 'fas fa-birthday-cake' }
-        ]
-      };
-    }
-
-    // Configuração genérica para outros tipos de negócio
-    return {
-      subtitle: businessData.businessType || 'Serviços Especializados',
-      heroDescription: businessData.description || `Oferecemos serviços de qualidade em ${businessData.city} com atendimento personalizado.`,
-      servicesTitle: 'Nossos Serviços',
-      servicesDescription: 'Soluções completas para suas necessidades',
-      aboutDescription: businessData.description || 'Empresa comprometida com a excelência e satisfação dos clientes.',
-      heroImage: 'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      aboutImage: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      services: [
-        { title: 'Atendimento Personalizado', description: 'Soluções sob medida para cada cliente', icon: 'fas fa-star' },
-        { title: 'Qualidade Garantida', description: 'Serviços com padrão de excelência', icon: 'fas fa-award' },
-        { title: 'Suporte Completo', description: 'Acompanhamento em todas as etapas', icon: 'fas fa-headset' }
-      ]
-    };
+  private generateCompleteHTML(businessData: BriefingData): string {
+    return this.buildLandingPageFromScratch(businessData);
   }
 
-  private generateCompleteHTML(businessData: BriefingData): string {
-    const title = businessData.companyName || 'Sua Empresa';
-    const description = businessData.description || 'Descrição da sua empresa';
-    const city = businessData.city || 'Sua Cidade';
-    const phone = businessData.phone || '(11) 99999-9999';
-    const email = businessData.email || 'contato@empresa.com';
-    const services = businessData.services || 'Serviços especializados';
-    const businessType = businessData.businessType?.toLowerCase() || '';
+  private buildLandingPageFromScratch(data: BriefingData): string {
+    const title = data.companyName || 'Empresa';
+    const type = data.businessType || 'Negócio';
+    const description = data.description || 'Descrição do negócio';
+    const services = data.services?.split(',').map(s => s.trim()) || [];
+    const city = data.city || 'Cidade';
+    const phone = data.phone || '';
+    const email = data.email || '';
 
-    // Personaliza conteúdo baseado no tipo de negócio
-    const businessConfig = this.getBusinessConfig(businessType, businessData);
+    // Cores baseadas no tipo de negócio
+    const colors = this.getBusinessColors(data.businessType || '');
     
+    // Seções baseadas no briefing
+    const sections = this.generateSections(data);
+    
+    // Imagens baseadas no tipo de negócio
+    const images = this.getBusinessImages(data.businessType || '');
+
     return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title} - ${city}</title>
-    <meta name="description" content="${description}" />
-    <meta name="author" content="${title}" />
-    <link rel="icon" href="/lovable-uploads/5a86d691-a877-4647-b08c-a2bddb5e5e71.png" type="image/png">
-
-    <meta property="og:title" content="${title} - ${city}" />
-    <meta property="og:description" content="${description}" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <title>${title} - ${type} em ${city}</title>
+    <meta name="description" content="${description}">
+    <meta name="keywords" content="${type}, ${city}, ${services.join(', ')}">
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&family=Source+Sans+Pro:wght@300;400;600;700&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- SEO -->
+    <meta property="og:title" content="${title} - ${type}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:type" content="website">
+    
+    <!-- Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary-color: #374151;
-            --secondary-color: #6b7280;
-            --accent-color: #f59e0b;
-            --bg-color: #ffffff;
-            --text-dark: #2d3748;
-            --text-light: #718096;
-            --heading-font: 'Poppins', sans-serif;
-            --body-font: 'Poppins', sans-serif;
+            --primary: ${colors.primary};
+            --secondary: ${colors.secondary};
+            --accent: ${colors.accent};
+            --background: #ffffff;
+            --foreground: #1a1a1a;
+            --muted: #f8f9fa;
+            --border: #e9ecef;
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: var(--body-font);
+            font-family: 'Inter', sans-serif;
             line-height: 1.6;
-            color: var(--text-dark);
-            background-color: var(--bg-color);
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-family: var(--heading-font);
-            font-weight: 600;
-            line-height: 1.2;
-            margin-bottom: 1rem;
-        }
-
-        .hero-section {
-            background: var(--bg-color);
-            border-bottom: 1px solid #e2e8f0;
+            color: var(--foreground);
+            background: var(--background);
         }
         
-        .card {
-            border: 1px solid #f7fafc;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        .hero {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        .hero .lead {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
         }
         
         .btn-primary {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-            color: #000;
+            background: var(--accent);
+            border: none;
+            padding: 15px 30px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
         
         .section {
-            padding: 120px 0;
+            padding: 80px 0;
         }
-
-        /* Chatbot Styles */
-        .chatbot-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
         }
-
-        .chatbot-toggle {
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-icon {
             width: 60px;
             height: 60px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .chatbot-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        .chatbot-window {
-            position: absolute;
-            bottom: 80px;
-            right: 0;
-            width: 350px;
-            height: 500px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chatbot-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-
-        .chatbot-close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .chatbot-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #f8f9fa;
-        }
-
-        .message {
-            margin-bottom: 15px;
-            padding: 12px 16px;
-            border-radius: 18px;
-            max-width: 80%;
-            word-wrap: break-word;
-        }
-
-        .message.bot {
-            background: #e3f2fd;
-            color: #1976d2;
-            margin-right: auto;
-        }
-
-        .message.user {
-            background: var(--primary-color);
-            color: white;
-            margin-left: auto;
-        }
-
-        .chatbot-input-area {
-            padding: 15px;
-            border-top: 1px solid #eee;
-            background: white;
-        }
-
-        .chatbot-input-container {
-            display: flex;
-            gap: 10px;
-        }
-
-        .chatbot-input {
-            flex: 1;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            padding: 10px 15px;
-            outline: none;
-        }
-
-        .chatbot-send {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
         }
-
+        
+        footer {
+            background: var(--foreground);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
         @media (max-width: 768px) {
-            .chatbot-window {
-                width: 300px;
-                height: 400px;
-            }
+            .hero h1 { font-size: 2.5rem; }
+            .section { padding: 60px 0; }
         }
     </style>
 </head>
 <body>
-    
+    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#" style="color: var(--primary-color);">
+            <a class="navbar-brand fw-bold" href="#" style="color: var(--primary);">
                 ${title}
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -633,343 +424,310 @@ export class ContentGenerator {
                     <li class="nav-item"><a class="nav-link" href="#servicos">Serviços</a></li>
                     <li class="nav-item"><a class="nav-link" href="#sobre">Sobre</a></li>
                     <li class="nav-item"><a class="nav-link" href="#contato">Contato</a></li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary btn-sm ms-2" href="#contato">Fale Conosco</a>
-                    </li>
                 </ul>
             </div>
         </div>
     </nav>
-  
+
     <!-- Hero Section -->
-    <section id="inicio" class="hero-section d-flex align-items-center" style="min-height: 100vh; padding-top: 80px;">
+    <section id="inicio" class="hero">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold text-dark mb-4">
-                        ${title}
-                    </h1>
-                    <h2 class="h3 text-dark mb-4 opacity-90">
-                        ${businessConfig.subtitle}
-                    </h2>
-                    <p class="lead text-dark mb-5 opacity-85">
-                        ${businessConfig.heroDescription}
-                    </p>
-                    <div class="d-flex gap-3 flex-wrap">
-                        <a href="#contato" class="btn btn-primary btn-lg px-4 py-3">
-                            Solicitar Orçamento
+                <div class="col-lg-6 text-lg-start">
+                    <h1>${title}</h1>
+                    <p class="lead">${description}</p>
+                    <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                        <a href="#contato" class="btn btn-primary btn-lg">
+                            Fale Conosco
                         </a>
-                        <a href="#servicos" class="btn btn-outline-primary btn-lg px-4 py-3">
+                        <a href="#servicos" class="btn btn-outline-light btn-lg">
                             Nossos Serviços
                         </a>
                     </div>
                 </div>
                 <div class="col-lg-6 text-center">
-                    <img src="${businessConfig.heroImage}" 
-                         alt="${title}" class="img-fluid rounded shadow-lg">
-                </div>
-            </div>
-        </div>
-    </section>
-  
-    <!-- Serviços -->
-    <section id="servicos" class="section bg-light">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="section-title">${businessConfig.servicesTitle}</h2>
-                <p class="lead">${businessConfig.servicesDescription}</p>
-            </div>
-            <div class="row g-4">
-                ${businessConfig.services.map(service => `
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body text-center p-4">
-                                <i class="${service.icon} text-primary mb-3" style="font-size: 2rem;"></i>
-                                <h5 class="card-title">${service.title}</h5>
-                                <p class="card-text text-muted">${service.description}</p>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    </section>
-
-    <!-- Sobre -->
-    <section id="sobre" class="section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h2 class="section-title">Sobre ${title}</h2>
-                    <p class="lead mb-4">${businessConfig.aboutDescription}</p>
-                    <div class="row g-3">
-                        <div class="col-sm-6">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-check-circle text-primary me-3"></i>
-                                <span>Qualidade Garantida</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-check-circle text-primary me-3"></i>
-                                <span>Atendimento Personalizado</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <img src="${businessConfig.aboutImage}" 
-                         alt="Sobre ${title}" class="img-fluid rounded shadow">
+                    <img src="${images.hero}" alt="${title}" class="img-fluid rounded shadow">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Depoimentos -->
-    <section class="section bg-light">
+    ${sections.map(section => section.html).join('')}
+
+    <!-- Contact Section -->
+    <section id="contato" class="section" style="background: var(--muted);">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="section-title">O que nossos clientes dizem</h2>
-                <p class="lead">Depoimentos reais de clientes satisfeitos</p>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-quote-left text-primary mb-3" style="font-size: 2rem;"></i>
-                            <p class="mb-3">"Excelente atendimento e resultados incríveis!"</p>
-                            <h6 class="text-muted">- João Silva</h6>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-quote-left text-primary mb-3" style="font-size: 2rem;"></i>
-                            <p class="mb-3">"Superou todas as minhas expectativas!"</p>
-                            <h6 class="text-muted">- Maria Santos</h6>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-quote-left text-primary mb-3" style="font-size: 2rem;"></i>
-                            <p class="mb-3">"Profissionais dedicados e competentes!"</p>
-                            <h6 class="text-muted">- Carlos Oliveira</h6>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-  
-    <!-- Contato -->
-    <section id="contato" class="section" style="background-color: var(--primary-color);">
-        <div class="container">
-            <div class="text-center text-white mb-5">
-                <h2 class="section-title text-white">Entre em Contato</h2>
+                <h2>Entre em Contato</h2>
                 <p class="lead">Estamos prontos para atender você</p>
             </div>
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    <div class="card shadow-lg border-0">
-                        <div class="card-body p-5">
-                            <form>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Nome</label>
-                                        <input type="text" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">E-mail</label>
-                                        <input type="email" class="form-control" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Telefone</label>
-                                        <input type="tel" class="form-control" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Mensagem</label>
-                                        <textarea class="form-control" rows="4" required></textarea>
-                                    </div>
-                                    <div class="col-12 text-center">
-                                        <button type="submit" class="btn btn-primary btn-lg px-5">
-                                            Enviar Mensagem
-                                        </button>
-                                    </div>
+                    <div class="card p-5">
+                        <form>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nome</label>
+                                    <input type="text" class="form-control" required>
                                 </div>
-                            </form>
-                        </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">E-mail</label>
+                                    <input type="email" class="form-control" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Telefone</label>
+                                    <input type="tel" class="form-control" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Mensagem</label>
+                                    <textarea class="form-control" rows="4" required></textarea>
+                                </div>
+                                <div class="col-12 text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        Enviar Mensagem
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
+            
+            ${phone || email ? `
+            <div class="row mt-5 text-center">
+                ${phone ? `<div class="col-md-6">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="fas fa-phone text-primary me-3 fs-4"></i>
+                        <div>
+                            <h6 class="mb-0">Telefone</h6>
+                            <p class="mb-0">${phone}</p>
+                        </div>
+                    </div>
+                </div>` : ''}
+                ${email ? `<div class="col-md-6">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="fas fa-envelope text-primary me-3 fs-4"></i>
+                        <div>
+                            <h6 class="mb-0">E-mail</h6>
+                            <p class="mb-0">${email}</p>
+                        </div>
+                    </div>
+                </div>` : ''}
+            </div>` : ''}
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-4">
+    <footer>
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-6">
+                <div class="col-md-6 text-start">
                     <p class="mb-0">&copy; 2024 ${title}. Todos os direitos reservados.</p>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0">Desenvolvido com Landing Creator AI</p>
+                <div class="col-md-6 text-end">
+                    <p class="mb-0">Desenvolvido com ❤️</p>
                 </div>
             </div>
         </div>
     </footer>
-  
-    <!-- Chatbot -->
-    <div class="chatbot-container">
-        <button class="chatbot-toggle" onclick="toggleChatbot()">
-            <i class="fas fa-comments"></i>
-        </button>
-        <div class="chatbot-window" id="chatbotWindow">
-            <div class="chatbot-header">
-                <button class="chatbot-close" onclick="toggleChatbot()">&times;</button>
-                <h6 class="mb-1">Assistente</h6>
-                <small>Como posso ajudar você?</small>
-            </div>
-            <div class="chatbot-messages" id="chatbotMessages">
-                <div class="message bot">
-                    Olá! Sou assistente da ${title}. Como posso ajudar você hoje?
-                </div>
-            </div>
-            <div class="chatbot-input-area">
-                <div class="chatbot-input-container">
-                    <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Digite sua mensagem...">
-                    <button class="chatbot-send" onclick="sendMessage()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-  
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        let chatbotOpen = false;
-        
-        const chatbotData = {
-            name: 'Assistente',
-            personality: 'profissional e prestativo',
-            instructions: 'Você é o assistente virtual da ${title}. Seja cordial e ajude os clientes com informações sobre nossos serviços.',
-            whatsapp: '${phone}',
-            businessHours: 'Segunda à Sexta: 9h às 18h',
-            specialOffers: '${businessData.specialOffers || ''}',
-            companyName: '${title}',
-            services: '${services}',
-            targetAudience: 'clientes'
-        };
-        
-        function toggleChatbot() {
-            const window = document.getElementById('chatbotWindow');
-            chatbotOpen = !chatbotOpen;
-            window.style.display = chatbotOpen ? 'flex' : 'none';
-            
-            if (chatbotOpen) {
-                document.getElementById('chatbotInput').focus();
-            }
-        }
-        
-        function sendMessage() {
-            const input = document.getElementById('chatbotInput');
-            const messages = document.getElementById('chatbotMessages');
-            const userMessage = input.value.trim();
-            
-            if (!userMessage) return;
-            
-            // Add user message
-            const userDiv = document.createElement('div');
-            userDiv.className = 'message user';
-            userDiv.textContent = userMessage;
-            messages.appendChild(userDiv);
-            
-            // Clear input
-            input.value = '';
-            
-            // Generate bot response
-            setTimeout(() => {
-                const botResponse = generateBotResponse(userMessage);
-                const botDiv = document.createElement('div');
-                botDiv.className = 'message bot';
-                botDiv.innerHTML = botResponse;
-                messages.appendChild(botDiv);
-                messages.scrollTop = messages.scrollHeight;
-            }, 1000);
-            
-            messages.scrollTop = messages.scrollHeight;
-        }
-        
-        function generateBotResponse(userMessage) {
-            const msg = userMessage.toLowerCase();
-            
-            // Respostas específicas baseadas na configuração da empresa
-            if (msg.includes('horário') || msg.includes('funcionamento')) {
-                return \`📅 Nosso horário de funcionamento: \${chatbotData.businessHours}\`;
-            }
-            
-            if (msg.includes('serviço') || msg.includes('produto')) {
-                return \`📋 Oferecemos: \${chatbotData.services}. Qual serviço específico você gostaria de saber mais?\`;
-            }
-            
-            if (msg.includes('preço') || msg.includes('valor') || msg.includes('orçamento')) {
-                let response = '💰 Para um orçamento personalizado, entre em contato conosco.';
-                if (chatbotData.specialOffers) {
-                    response += \` \${chatbotData.specialOffers}\`;
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
-                if (chatbotData.whatsapp) {
-                    response += \` Ou fale diretamente no WhatsApp: \${chatbotData.whatsapp}\`;
-                }
-                return response;
-            }
-            
-            if (msg.includes('contato') || msg.includes('telefone') || msg.includes('whatsapp')) {
-                if (chatbotData.whatsapp) {
-                    return \`📱 Você pode entrar em contato conosco pelo WhatsApp: \${chatbotData.whatsapp} ou pelo formulário de contato no site.\`;
-                }
-                return '📱 Entre em contato conosco pelo formulário no site ou pelos dados de contato disponíveis.';
-            }
-            
-            if (msg.includes('localização') || msg.includes('endereço') || msg.includes('onde')) {
-                return '📍 Nossa localização está disponível na seção de contato. Como posso ajudar com mais informações?';
-            }
-            
-            // Respostas genéricas baseadas na personalidade
-            const responses = [
-                \`Obrigado por entrar em contato com a \${chatbotData.companyName}! Como posso ajudar você hoje?\`,
-                \`Fico feliz em ajudar! Conte-me mais sobre o que você precisa.\`,
-                \`Perfeito! Vou te ajudar com isso. \${chatbotData.instructions}\`,
-                \`Excelente pergunta! Para melhor atendê-lo, você pode me dar mais detalhes?\`
-            ];
-            
-            return responses[Math.floor(Math.random() * responses.length)];
-        }
-        
-        // Allow Enter key to send message
-        document.getElementById('chatbotInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
+            });
         });
         
-        // Auto-open chatbot after 10 seconds (optional)
-        setTimeout(() => {
-            if (!chatbotOpen) {
-                const welcomeDiv = document.createElement('div');
-                welcomeDiv.className = 'message bot';
-                welcomeDiv.innerHTML = '👋 Olá! Precisa de ajuda? Estou aqui para atendê-lo!';
-                document.getElementById('chatbotMessages').appendChild(welcomeDiv);
-            }
-        }, 10000);
+        // Form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Mensagem enviada! Entraremos em contato em breve.');
+            this.reset();
+        });
     </script>
-  
 </body>
 </html>`;
+  }
+
+  private getBusinessColors(businessType: string): { primary: string; secondary: string; accent: string } {
+    const type = businessType.toLowerCase();
+    
+    if (type.includes('clínica') || type.includes('saúde')) {
+      return { primary: '#0ea5e9', secondary: '#38bdf8', accent: '#22d3ee' };
+    }
+    if (type.includes('corretor') || type.includes('imóvel')) {
+      return { primary: '#059669', secondary: '#10b981', accent: '#34d399' };
+    }
+    if (type.includes('restaurante') || type.includes('food')) {
+      return { primary: '#dc2626', secondary: '#ef4444', accent: '#f87171' };
+    }
+    if (type.includes('moda') || type.includes('roupa')) {
+      return { primary: '#7c3aed', secondary: '#8b5cf6', accent: '#a78bfa' };
+    }
+    if (type.includes('produto') || type.includes('curso')) {
+      return { primary: '#ea580c', secondary: '#fb923c', accent: '#fdba74' };
+    }
+    
+    return { primary: '#3b82f6', secondary: '#60a5fa', accent: '#93c5fd' };
+  }
+
+  private getBusinessImages(businessType: string): { hero: string; about: string; services: string } {
+    const type = businessType.toLowerCase();
+    
+    if (type.includes('clínica') || type.includes('saúde')) {
+      return {
+        hero: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        about: 'https://images.unsplash.com/photo-1551076805-e1869033e561?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        services: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+      };
+    }
+    if (type.includes('corretor') || type.includes('imóvel')) {
+      return {
+        hero: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        about: 'https://images.unsplash.com/photo-1582407947304-fd86f028998c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        services: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+      };
+    }
+    if (type.includes('restaurante') || type.includes('food')) {
+      return {
+        hero: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        about: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        services: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+      };
+    }
+    if (type.includes('moda') || type.includes('roupa')) {
+      return {
+        hero: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        about: 'https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        services: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+      };
+    }
+    
+    return {
+      hero: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      about: 'https://images.unsplash.com/photo-1553484771-371a605b060b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+      services: 'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+    };
+  }
+
+  private generateSections(data: BriefingData): Array<{ html: string }> {
+    const sections = [];
+    const services = data.services?.split(',').map(s => s.trim()) || [];
+    const businessType = data.businessType?.toLowerCase() || '';
+    
+    // Seção de Serviços
+    if (services.length > 0) {
+      const serviceCards = services.map((service, index) => {
+        const icon = this.getServiceIcon(service, businessType);
+        return `
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 text-center p-4">
+                <div class="service-icon mx-auto">
+                    <i class="${icon}"></i>
+                </div>
+                <h5>${service}</h5>
+                <p class="text-muted">Oferecemos ${service.toLowerCase()} com qualidade e profissionalismo.</p>
+            </div>
+        </div>`;
+      }).join('');
+
+      sections.push({
+        html: `
+        <section id="servicos" class="section">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2>Nossos Serviços</h2>
+                    <p class="lead">Conheça todas as soluções que oferecemos</p>
+                </div>
+                <div class="row">
+                    ${serviceCards}
+                </div>
+            </div>
+        </section>`
+      });
+    }
+
+    // Seção Sobre
+    sections.push({
+      html: `
+      <section id="sobre" class="section" style="background: var(--muted);">
+          <div class="container">
+              <div class="row align-items-center">
+                  <div class="col-lg-6">
+                      <h2>Sobre ${data.companyName}</h2>
+                      <p class="lead">${data.description}</p>
+                      <div class="row g-3 mt-4">
+                          <div class="col-sm-6">
+                              <div class="d-flex align-items-center">
+                                  <i class="fas fa-check-circle text-primary me-3 fs-5"></i>
+                                  <span>Qualidade Garantida</span>
+                              </div>
+                          </div>
+                          <div class="col-sm-6">
+                              <div class="d-flex align-items-center">
+                                  <i class="fas fa-check-circle text-primary me-3 fs-5"></i>
+                                  <span>Atendimento Personalizado</span>
+                              </div>
+                          </div>
+                          <div class="col-sm-6">
+                              <div class="d-flex align-items-center">
+                                  <i class="fas fa-check-circle text-primary me-3 fs-5"></i>
+                                  <span>Experiência Comprovada</span>
+                              </div>
+                          </div>
+                          <div class="col-sm-6">
+                              <div class="d-flex align-items-center">
+                                  <i class="fas fa-check-circle text-primary me-3 fs-5"></i>
+                                  <span>Resultados Efetivos</span>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-lg-6">
+                      <img src="${this.getBusinessImages(businessType).about}" alt="Sobre nós" class="img-fluid rounded shadow">
+                  </div>
+              </div>
+          </div>
+      </section>`
+    });
+
+    return sections;
+  }
+
+  private getServiceIcon(service: string, businessType: string): string {
+    const serviceType = service.toLowerCase();
+    const business = businessType.toLowerCase();
+    
+    if (business.includes('clínica') || business.includes('saúde')) {
+      if (serviceType.includes('consulta')) return 'fas fa-stethoscope';
+      if (serviceType.includes('exame')) return 'fas fa-x-ray';
+      if (serviceType.includes('cirurg')) return 'fas fa-procedures';
+      return 'fas fa-heartbeat';
+    }
+    
+    if (business.includes('corretor') || business.includes('imóvel')) {
+      if (serviceType.includes('venda')) return 'fas fa-home';
+      if (serviceType.includes('compra')) return 'fas fa-key';
+      if (serviceType.includes('locação') || serviceType.includes('aluguel')) return 'fas fa-handshake';
+      return 'fas fa-building';
+    }
+    
+    if (business.includes('restaurante') || business.includes('food')) {
+      if (serviceType.includes('prato')) return 'fas fa-utensils';
+      if (serviceType.includes('entrada')) return 'fas fa-cheese';
+      if (serviceType.includes('sobremesa')) return 'fas fa-birthday-cake';
+      return 'fas fa-concierge-bell';
+    }
+    
+    return 'fas fa-star';
   }
 
   async generateLandingPage(briefing: any): Promise<string> {
