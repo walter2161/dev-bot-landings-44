@@ -96,7 +96,7 @@ const DocumentationModal = ({ open, onOpenChange }: DocumentationModalProps) => 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bot className="w-5 h-5 text-primary" />
-            Documentação do ChatDev
+            Documentação do PageJet
           </DialogTitle>
         </DialogHeader>
         
@@ -109,7 +109,7 @@ const DocumentationModal = ({ open, onOpenChange }: DocumentationModalProps) => 
                 Visão Geral
               </h3>
               <p className="text-muted-foreground text-sm mb-3">
-                O ChatDev é um gerador inteligente de landing pages que usa IA para criar páginas de alta conversão 
+                O PageJet é um gerador inteligente de landing pages que usa IA para criar páginas de alta conversão 
                 baseadas nas informações do seu negócio.
               </p>
               <div className="flex flex-wrap gap-2">

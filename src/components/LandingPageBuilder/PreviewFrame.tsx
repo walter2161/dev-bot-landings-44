@@ -49,9 +49,11 @@ const PreviewFrame = ({ generatedHTML, businessData }: PreviewFrameProps) => {
   const emptyPreview = `
     <div style="font-family: 'Inter', sans-serif; margin: 0; padding: 0; background: #f8fafc; height: 100vh; display: flex; align-items: center; justify-content: center;">
       <div style="text-align: center; color: #64748b;">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">🎨</div>
+        <div style="margin-bottom: 1rem;">
+          <img src="/lovable-uploads/6381dbd8-479d-45ec-aad0-a9b41c25b1e8.png" alt="PageJet Mascote" style="width: 120px; height: auto; margin: 0 auto; display: block;" />
+        </div>
         <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #334155;">Aguardando Landing Page</h2>
-        <p style="font-size: 1rem;">Use o ChatDev para gerar sua landing page personalizada</p>
+        <p style="font-size: 1rem;">Use o PageJet para gerar sua landing page personalizada</p>
       </div>
     </div>
   `;

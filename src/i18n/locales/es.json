@@ -1,8 +1,8 @@
 {
   "app": {
-    "title": "ChatDev",
+    "title": "PageJet",
     "subtitle": "Generador de Landing Page",
-    "poweredBy": "ChatDev AI - Powered by Mistral"
+    "poweredBy": "PageJet AI - Powered by Mistral"
   },
   "navigation": {
     "chat": "Chat",
@@ -43,11 +43,11 @@
     "contactInfoPlaceholder": "Email, teléfono comercial...",
     "specialOffers": "Ofertas Especiales",
     "specialOffersPlaceholder": "Promociones, descuentos, paquetes...",
-    "updateChatDev": "Actualizar ChatDev",
+    "updateChatDev": "Actualizar PageJet",
     "logoError": "Por favor, selecciona un archivo de imagen válido"
   },
   "chat": {
-    "title": "ChatDev IA - Generador de Landing Page",
+    "title": "PageJet IA - Generador de Landing Page",
     "placeholder": "Escribe tu mensaje..."
   },
   "buttons": {
