@@ -152,9 +152,11 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-hero rounded-lg flex items-center justify-center">
-                <Bot className="w-5 h-5 text-foreground" />
-              </div>
+              <img 
+                src="/lovable-uploads/5a86d691-a877-4647-b08c-a2bddb5e5e71.png" 
+                alt="PageJet Logo" 
+                className="w-8 h-8 rounded-lg"
+              />
               <div>
                 <h1 className="text-lg font-bold text-foreground">
                   {t('app.title')}
@@ -187,9 +189,11 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
                     <div className="p-4 border-b border-border bg-card/50">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 bg-gradient-hero rounded-md flex items-center justify-center">
-                            <Bot className="w-4 h-4 text-foreground" />
-                          </div>
+                          <img 
+                            src="/lovable-uploads/5a86d691-a877-4647-b08c-a2bddb5e5e71.png" 
+                            alt="PageJet Logo" 
+                            className="w-6 h-6 rounded-md"
+                          />
                           <span className="font-semibold text-foreground">
                             {t('app.title')}
                           </span>

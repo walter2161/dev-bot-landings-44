@@ -19,9 +19,11 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-hero rounded-lg flex items-center justify-center">
-              <Bot className="w-5 h-5 text-foreground" />
-            </div>
+            <img 
+              src="/lovable-uploads/5a86d691-a877-4647-b08c-a2bddb5e5e71.png" 
+              alt="PageJet Logo" 
+              className="w-8 h-8 rounded-lg"
+            />
             <div>
               <h1 className="text-xl font-bold text-foreground">{t('app.title')}</h1>
               <p className="text-xs text-muted-foreground">{t('app.subtitle')}</p>

@@ -148,9 +148,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onLandingPageGenerated, businessData:
     <aside className="w-80 border-r border-border bg-card/50 backdrop-blur">
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-gradient-hero rounded-lg flex items-center justify-center">
-            <Bot className="w-5 h-5 text-foreground" />
-          </div>
+          <img 
+            src="/lovable-uploads/5a86d691-a877-4647-b08c-a2bddb5e5e71.png" 
+            alt="PageJet Logo" 
+            className="w-8 h-8 rounded-lg"
+          />
           <div>
             <h2 className="font-semibold text-foreground">
               {t('app.title')}
