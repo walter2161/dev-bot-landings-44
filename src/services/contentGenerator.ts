@@ -1,3 +1,6 @@
+import { toast } from 'sonner';
+import { aiLandingPageGenerator } from './aiLandingPageGenerator';
+
 const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
 const MISTRAL_API_KEY = "aynCSftAcQBOlxmtmpJqVzco8K4aaTDQ";
 
@@ -759,8 +762,19 @@ class ContentGenerator {
     return `Olá! Como posso ajudar você com ${message}?`;
   }
 
-  generateLandingPageHTML(briefing: any): Promise<string> {
-    return this.generateLandingPage(briefing);
+  async generateLandingPageHTML(briefing: any): Promise<string> {
+    try {
+      // Se o briefing é um prompt de texto, usar o novo sistema AI
+      if (typeof briefing === 'string') {
+        return await aiLandingPageGenerator.generateCompleteLandingPage(briefing);
+      }
+      
+      // Caso contrário, usar o sistema antigo para compatibilidade
+      return this.generateLandingPage(briefing);
+    } catch (error) {
+      console.error('Erro ao gerar HTML:', error);
+      throw error;
+    }
   }
 
   extractBusinessDataFromHTML(html: string): BusinessContent {

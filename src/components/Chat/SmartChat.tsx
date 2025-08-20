@@ -123,14 +123,11 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
         const response = await contentGenerator.generateChatResponse(messageToSend);
         addMessage('assistant', response);
       } else {
-        // Modo geração de landing page - gerar HTML diretamente
-        addMessage('assistant', 'Analisando sua solicitação e criando landing page...');
+        // Modo geração de landing page - usar novo sistema AI
+        addMessage('assistant', 'Analisando sua solicitação e criando landing page personalizada...');
 
-        // Criar um briefing estruturado baseado no tipo de negócio
-        const briefingData = createBriefingFromBusinessType(messageToSend);
-
-        // Gerar HTML diretamente
-        const html = await contentGenerator.generateLandingPageHTML(briefingData);
+        // Gerar HTML usando o novo sistema AI que processa prompts diretamente
+        const html = await contentGenerator.generateLandingPageHTML(messageToSend);
         
         // Extrair dados básicos do HTML para compatibilidade
         const businessData = contentGenerator.extractBusinessDataFromHTML(html);
