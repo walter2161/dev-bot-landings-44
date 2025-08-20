@@ -17,9 +17,9 @@ All colors MUST be HSL.
     --popover: 220 24% 10%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
-    --primary-glow: 262 83% 68%;
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 25 95% 63%;
 
     --secondary: 215 25% 27%;
     --secondary-foreground: 210 40% 98%;
@@ -36,10 +36,10 @@ All colors MUST be HSL.
 
     --border: 215 25% 20%;
     --input: 215 25% 15%;
-    --ring: 262 83% 58%;
+    --ring: 25 95% 53%;
 
     /* ChatDev specific colors */
-    --chatdev-purple: 262 83% 58%;
+    --chatdev-purple: 25 95% 53%;
     --chatdev-green: 142 76% 36%;
     --chatdev-blue: 217 91% 60%;
     --chatdev-orange: 25 95% 53%;
