@@ -128,29 +128,248 @@ export class ContentGenerator {
 
   async generateLandingPageHTML(userRequest: string): Promise<string> {
     try {
-      // Tentar primeiro a API
-      const prompt = `INSTRUÇÃO CRÍTICA: Você DEVE criar uma landing page HTML completa e funcional baseada na solicitação do usuário.
-
-SOLICITAÇÃO DO USUÁRIO: "${userRequest}"
-
-Retorne APENAS o HTML completo iniciando com <!DOCTYPE html> e terminando com </html>, sem explicações ou texto adicional.`;
-
-      const response = await this.makeRequest(prompt);
+      console.log("Gerando landing page em partes para:", userRequest);
       
-      // Limpar e validar a resposta
-      let htmlContent = this.cleanHTMLResponse(response);
+      // Dividir a geração em múltiplas partes
+      const parts = await Promise.all([
+        this.generateHTMLPart(userRequest, "header", "Gere apenas o <!DOCTYPE html>, <html>, <head> completo com meta tags, title e CSS inline para uma landing page sobre: "),
+        this.generateHTMLPart(userRequest, "hero", "Gere apenas a seção hero (<section class='hero'>) com título, subtítulo e call-to-action para: "),
+        this.generateHTMLPart(userRequest, "about", "Gere apenas a seção sobre (<section class='about'>) explicando o negócio para: "),
+        this.generateHTMLPart(userRequest, "services", "Gere apenas a seção de serviços (<section class='services'>) listando os principais serviços para: "),
+        this.generateHTMLPart(userRequest, "features", "Gere apenas a seção de diferenciais (<section class='features'>) destacando vantagens para: "),
+        this.generateHTMLPart(userRequest, "contact", "Gere apenas a seção de contato (<section class='contact'>) com informações de contato para: "),
+        this.generateHTMLPart(userRequest, "footer", "Gere apenas o footer (<footer>) e scripts JavaScript básicos para: "),
+        this.generateHTMLPart(userRequest, "closing", "Gere apenas as tags de fechamento </body></html>")
+      ]);
+
+      // Juntar todas as partes
+      const fullHTML = parts.join('\n');
       
-      if (this.isValidHTML(htmlContent)) {
-        console.log("HTML gerado com sucesso via API");
-        return htmlContent;
-      } else {
-        throw new Error("HTML inválido da API");
-      }
+      console.log("HTML gerado com sucesso em partes");
+      return this.cleanAndValidateHTML(fullHTML);
       
     } catch (error) {
-      console.warn("API falhou, usando template local:", error);
-      // Fallback para template local
+      console.warn("Geração em partes falhou, usando template local:", error);
       return this.generateLocalHTML(userRequest);
+    }
+  }
+
+  private async generateHTMLPart(userRequest: string, partType: string, promptPrefix: string): Promise<string> {
+    const prompt = `${promptPrefix}${userRequest}
+
+IMPORTANTE: 
+- Retorne APENAS o HTML solicitado, sem explicações
+- Use CSS inline ou classes CSS modernas
+- Seja responsivo e profissional
+- Use cores atrativas e design moderno`;
+
+    try {
+      const response = await this.makeRequest(prompt);
+      return this.cleanHTMLResponse(response);
+    } catch (error) {
+      console.warn(`Falha ao gerar parte ${partType}:`, error);
+      return this.getLocalHTMLPart(userRequest, partType);
+    }
+  }
+
+  private getLocalHTMLPart(userRequest: string, partType: string): string {
+    const businessType = userRequest.toLowerCase();
+    const colors = this.getColorsForBusiness(businessType);
+    
+    switch (partType) {
+      case "header":
+        return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${this.getTitleForBusiness(businessType)}</title>
+    <meta name="description" content="${this.getDescriptionForBusiness(businessType)}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .section { padding: 80px 0; }
+        .section:nth-child(even) { background: #f8f9fa; }
+        .btn { background: ${colors.primary}; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn:hover { background: ${colors.accent}; }
+        @media (max-width: 768px) { .container { padding: 0 15px; } .section { padding: 60px 0; } }
+    </style>
+</head>
+<body>`;
+      
+      case "hero":
+        return `<section class="section" style="background: linear-gradient(135deg, ${colors.primary}, ${colors.secondary}); color: white; text-align: center; min-height: 100vh; display: flex; align-items: center;">
+    <div class="container">
+        <h1 style="font-size: 3rem; margin-bottom: 1rem;">${this.getTitleForBusiness(businessType)}</h1>
+        <p style="font-size: 1.2rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">${this.getHeroTextForBusiness(businessType)}</p>
+        <a href="#contato" class="btn" style="font-size: 1.1rem;">Saiba Mais</a>
+    </div>
+</section>`;
+      
+      case "about":
+        return `<section class="section">
+    <div class="container">
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 2rem; color: ${colors.primary};">Sobre Nós</h2>
+        <p style="text-align: center; font-size: 1.1rem; max-width: 800px; margin: 0 auto;">${this.getAboutTextForBusiness(businessType)}</p>
+    </div>
+</section>`;
+      
+      case "services":
+        return `<section class="section">
+    <div class="container">
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 2rem; color: ${colors.primary};">Nossos Serviços</h2>
+        <p style="text-align: center; font-size: 1.1rem; max-width: 800px; margin: 0 auto;">${this.getServicesTextForBusiness(businessType)}</p>
+    </div>
+</section>`;
+      
+      case "features":
+        return `<section class="section">
+    <div class="container">
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 2rem; color: ${colors.primary};">Nossos Diferenciais</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px;">
+            <div style="text-align: center; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                <h3 style="color: ${colors.primary}; margin-bottom: 15px;">Qualidade</h3>
+                <p>Serviços de alta qualidade com excelência comprovada.</p>
+            </div>
+            <div style="text-align: center; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                <h3 style="color: ${colors.primary}; margin-bottom: 15px;">Experiência</h3>
+                <p>Anos de experiência no mercado garantem o melhor resultado.</p>
+            </div>
+            <div style="text-align: center; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                <h3 style="color: ${colors.primary}; margin-bottom: 15px;">Atendimento</h3>
+                <p>Atendimento personalizado e dedicado para cada cliente.</p>
+            </div>
+        </div>
+    </div>
+</section>`;
+      
+      case "contact":
+        return `<section class="section" id="contato">
+    <div class="container">
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 2rem; color: ${colors.primary};">Entre em Contato</h2>
+        <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+            <p style="margin-bottom: 20px;">Entre em contato conosco para saber mais sobre nossos serviços.</p>
+            <p style="margin-bottom: 15px;"><strong>WhatsApp:</strong> (11) 99999-9999</p>
+            <p style="margin-bottom: 15px;"><strong>Email:</strong> contato@empresa.com</p>
+            <a href="https://wa.me/5511999999999" class="btn" style="margin-top: 20px;">Falar no WhatsApp</a>
+        </div>
+    </div>
+</section>`;
+      
+      case "footer":
+        return `<footer style="background: #333; color: white; padding: 40px 0; text-align: center;">
+    <div class="container">
+        <h3>${this.getTitleForBusiness(businessType)}</h3>
+        <p>© 2024 ${this.getTitleForBusiness(businessType)}. Todos os direitos reservados.</p>
+    </div>
+</footer>
+
+<script>
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+</script>`;
+      
+      case "closing":
+        return `</body>
+</html>`;
+      
+      default:
+        return "";
+    }
+  }
+
+  private cleanAndValidateHTML(html: string): string {
+    // Limpar HTML duplicado e tags mal formadas
+    let cleanHTML = html.replace(/<!DOCTYPE html>/gi, '<!DOCTYPE html>');
+    cleanHTML = cleanHTML.replace(/<html[^>]*>/gi, '<html lang="pt-BR">');
+    
+    // Remover duplicatas
+    const parts = cleanHTML.split('<!DOCTYPE html>');
+    if (parts.length > 2) {
+      cleanHTML = '<!DOCTYPE html>' + parts[parts.length - 1];
+    }
+    
+    return cleanHTML.trim();
+  }
+
+  private getColorsForBusiness(businessType: string): ColorScheme {
+    if (businessType.includes('loja') || businessType.includes('roupas') || businessType.includes('moda')) {
+      return { primary: "#e91e63", secondary: "#f48fb1", accent: "#ad1457" };
+    } else if (businessType.includes('restaurante') || businessType.includes('comida')) {
+      return { primary: "#ff5722", secondary: "#ff8a65", accent: "#d84315" };
+    } else if (businessType.includes('imobiliario') || businessType.includes('imovel') || businessType.includes('corretor')) {
+      return { primary: "#2196f3", secondary: "#64b5f6", accent: "#1976d2" };
+    } else {
+      return { primary: "#4caf50", secondary: "#81c784", accent: "#388e3c" };
+    }
+  }
+
+  private getTitleForBusiness(businessType: string): string {
+    if (businessType.includes('loja') || businessType.includes('roupas') || businessType.includes('moda')) {
+      return "Estilo & Moda";
+    } else if (businessType.includes('restaurante') || businessType.includes('comida')) {
+      return "Sabor & Tradição";
+    } else if (businessType.includes('imobiliario') || businessType.includes('imovel') || businessType.includes('corretor')) {
+      return "Imóveis Premium";
+    } else {
+      return "Seu Negócio";
+    }
+  }
+
+  private getDescriptionForBusiness(businessType: string): string {
+    if (businessType.includes('loja') || businessType.includes('roupas') || businessType.includes('moda')) {
+      return "Sua loja de roupas online com as melhores tendências";
+    } else if (businessType.includes('restaurante') || businessType.includes('comida')) {
+      return "Restaurante com os melhores pratos da região";
+    } else if (businessType.includes('imobiliario') || businessType.includes('imovel') || businessType.includes('corretor')) {
+      return "Seu novo lar está aqui - Imóveis de qualidade";
+    } else {
+      return "Soluções personalizadas para você";
+    }
+  }
+
+  private getHeroTextForBusiness(businessType: string): string {
+    if (businessType.includes('loja') || businessType.includes('roupas') || businessType.includes('moda')) {
+      return "Vista-se com estilo, expresse sua personalidade";
+    } else if (businessType.includes('restaurante') || businessType.includes('comida')) {
+      return "Sabores autênticos que conquistam o paladar";
+    } else if (businessType.includes('imobiliario') || businessType.includes('imovel') || businessType.includes('corretor')) {
+      return "O imóvel dos seus sonhos está aqui";
+    } else {
+      return "Transforme suas ideias em realidade";
+    }
+  }
+
+  private getAboutTextForBusiness(businessType: string): string {
+    if (businessType.includes('loja') || businessType.includes('roupas') || businessType.includes('moda')) {
+      return "Oferecemos as melhores peças de roupa com qualidade e estilo únicos";
+    } else if (businessType.includes('restaurante') || businessType.includes('comida')) {
+      return "Tradição familiar em cada prato, ingredientes frescos e receitas especiais";
+    } else if (businessType.includes('imobiliario') || businessType.includes('imovel') || businessType.includes('corretor')) {
+      return "Especialistas em imóveis residenciais e comerciais com as melhores opções";
+    } else {
+      return "Oferecemos serviços de qualidade com atendimento personalizado";
+    }
+  }
+
+  private getServicesTextForBusiness(businessType: string): string {
+    if (businessType.includes('loja') || businessType.includes('roupas') || businessType.includes('moda')) {
+      return "Roupas casuais, sociais, esportivas e acessórios";
+    } else if (businessType.includes('restaurante') || businessType.includes('comida')) {
+      return "Almoço, jantar, delivery e eventos especiais";
+    } else if (businessType.includes('imobiliario') || businessType.includes('imovel') || businessType.includes('corretor')) {
+      return "Venda, locação, financiamento e consultoria imobiliária";
+    } else {
+      return "Consultorias, serviços especializados e soluções completas";
     }
   }
 
