@@ -278,6 +278,129 @@ export class ContentGenerator {
     return data;
   }
 
+  private getBusinessConfig(businessType: string, businessData: BriefingData): any {
+    const type = businessType.toLowerCase();
+    
+    // Configurações específicas por tipo de negócio
+    if (type.includes('corretor') || type.includes('imóv') || type.includes('imovel')) {
+      return {
+        subtitle: 'Corretor de Imóveis',
+        heroDescription: `Encontre o imóvel dos seus sonhos em ${businessData.city}. Especialista em compra, venda e locação com atendimento personalizado.`,
+        servicesTitle: 'Nossos Serviços Imobiliários',
+        servicesDescription: 'Soluções completas para todas as suas necessidades imobiliárias',
+        aboutDescription: `Com anos de experiência no mercado imobiliário de ${businessData.city}, oferecemos atendimento personalizado e conhecimento profundo do mercado local.`,
+        heroImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        aboutImage: 'https://images.unsplash.com/photo-1582407947304-fd86f028998c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        services: [
+          { title: 'Venda de Imóveis', description: 'Assessoria completa na venda do seu imóvel com avaliação gratuita', icon: 'fas fa-home' },
+          { title: 'Compra de Imóveis', description: 'Encontramos o imóvel perfeito para você com as melhores condições', icon: 'fas fa-key' },
+          { title: 'Locação', description: 'Administração completa de locação para proprietários e locatários', icon: 'fas fa-handshake' }
+        ]
+      };
+    }
+
+    if (type.includes('lançamento') || type.includes('lancamento')) {
+      return {
+        subtitle: 'Lançamento Imobiliário',
+        heroDescription: `Conheça o mais novo empreendimento em ${businessData.city}. Modernidade, qualidade e localização privilegiada.`,
+        servicesTitle: 'Diferenciais do Empreendimento',
+        servicesDescription: 'Conheça tudo que este lançamento tem a oferecer',
+        aboutDescription: 'Um empreendimento pensado nos mínimos detalhes para oferecer qualidade de vida e valorização do seu investimento.',
+        heroImage: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        aboutImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        services: [
+          { title: 'Localização Privilegiada', description: 'Próximo aos principais pontos da cidade', icon: 'fas fa-map-marker-alt' },
+          { title: 'Área de Lazer Completa', description: 'Piscina, academia, salão de festas e muito mais', icon: 'fas fa-swimming-pool' },
+          { title: 'Apartamentos Modernos', description: 'Plantas otimizadas e acabamentos de primeira linha', icon: 'fas fa-building' }
+        ]
+      };
+    }
+
+    if (type.includes('clínica') || type.includes('clinica') || type.includes('saúde') || type.includes('saude')) {
+      return {
+        subtitle: 'Clínica de Saúde',
+        heroDescription: `Cuidamos da sua saúde com profissionais especializados e equipamentos modernos em ${businessData.city}.`,
+        servicesTitle: 'Nossos Serviços Médicos',
+        servicesDescription: 'Atendimento médico especializado com qualidade e humanização',
+        aboutDescription: 'Nossa clínica oferece atendimento médico de excelência, com profissionais qualificados e tecnologia de ponta.',
+        heroImage: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        aboutImage: 'https://images.unsplash.com/photo-1551076805-e1869033e561?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        services: [
+          { title: 'Consultas Especializadas', description: 'Médicos especialistas em diversas áreas', icon: 'fas fa-stethoscope' },
+          { title: 'Exames Diagnósticos', description: 'Equipamentos modernos para diagnósticos precisos', icon: 'fas fa-x-ray' },
+          { title: 'Procedimentos', description: 'Cirurgias e procedimentos com segurança', icon: 'fas fa-procedures' }
+        ]
+      };
+    }
+
+    if (type.includes('produto') || type.includes('info')) {
+      return {
+        subtitle: 'Produto Digital',
+        heroDescription: `Transforme sua vida com nosso produto exclusivo. Resultados comprovados e satisfação garantida.`,
+        servicesTitle: 'O que você vai receber',
+        servicesDescription: 'Conteúdo completo e suporte especializado',
+        aboutDescription: 'Produto desenvolvido por especialistas para entregar resultados reais e transformar sua realidade.',
+        heroImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        aboutImage: 'https://images.unsplash.com/photo-1553484771-371a605b060b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        services: [
+          { title: 'Conteúdo Exclusivo', description: 'Material desenvolvido por especialistas', icon: 'fas fa-book' },
+          { title: 'Suporte Direto', description: 'Acesso direto aos criadores do produto', icon: 'fas fa-headset' },
+          { title: 'Garantia Total', description: 'Satisfação garantida ou seu dinheiro de volta', icon: 'fas fa-shield-alt' }
+        ]
+      };
+    }
+
+    if (type.includes('roupa') || type.includes('moda') || type.includes('loja')) {
+      return {
+        subtitle: 'Moda & Estilo',
+        heroDescription: `As últimas tendências da moda em ${businessData.city}. Qualidade, estilo e preços especiais.`,
+        servicesTitle: 'Nossa Coleção',
+        servicesDescription: 'Peças selecionadas para todos os estilos e ocasiões',
+        aboutDescription: 'Loja especializada em moda com peças cuidadosamente selecionadas para expressar seu estilo único.',
+        heroImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        aboutImage: 'https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        services: [
+          { title: 'Roupas Femininas', description: 'Vestidos, blusas, calças e acessórios', icon: 'fas fa-tshirt' },
+          { title: 'Roupas Masculinas', description: 'Camisas, calças, bermudas e mais', icon: 'fas fa-user-tie' },
+          { title: 'Acessórios', description: 'Bolsas, sapatos e complementos', icon: 'fas fa-gem' }
+        ]
+      };
+    }
+
+    if (type.includes('restaurante') || type.includes('comida') || type.includes('food')) {
+      return {
+        subtitle: 'Restaurante',
+        heroDescription: `A melhor gastronomia de ${businessData.city}. Pratos especiais, ambiente aconchegante e atendimento excepcional.`,
+        servicesTitle: 'Nosso Cardápio',
+        servicesDescription: 'Sabores únicos preparados com ingredientes selecionados',
+        aboutDescription: 'Restaurante que combina tradição culinária com inovação, oferecendo uma experiência gastronômica inesquecível.',
+        heroImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        aboutImage: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        services: [
+          { title: 'Pratos Principais', description: 'Carnes, peixes e pratos vegetarianos', icon: 'fas fa-utensils' },
+          { title: 'Entradas e Petiscos', description: 'Aperitivos especiais da casa', icon: 'fas fa-cheese' },
+          { title: 'Sobremesas', description: 'Doces artesanais irresistíveis', icon: 'fas fa-birthday-cake' }
+        ]
+      };
+    }
+
+    // Configuração genérica para outros tipos de negócio
+    return {
+      subtitle: businessData.businessType || 'Serviços Especializados',
+      heroDescription: businessData.description || `Oferecemos serviços de qualidade em ${businessData.city} com atendimento personalizado.`,
+      servicesTitle: 'Nossos Serviços',
+      servicesDescription: 'Soluções completas para suas necessidades',
+      aboutDescription: businessData.description || 'Empresa comprometida com a excelência e satisfação dos clientes.',
+      heroImage: 'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+      aboutImage: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+      services: [
+        { title: 'Atendimento Personalizado', description: 'Soluções sob medida para cada cliente', icon: 'fas fa-star' },
+        { title: 'Qualidade Garantida', description: 'Serviços com padrão de excelência', icon: 'fas fa-award' },
+        { title: 'Suporte Completo', description: 'Acompanhamento em todas as etapas', icon: 'fas fa-headset' }
+      ]
+    };
+  }
+
   private generateCompleteHTML(businessData: BriefingData): string {
     const title = businessData.companyName || 'Sua Empresa';
     const description = businessData.description || 'Descrição da sua empresa';
@@ -285,6 +408,10 @@ export class ContentGenerator {
     const phone = businessData.phone || '(11) 99999-9999';
     const email = businessData.email || 'contato@empresa.com';
     const services = businessData.services || 'Serviços especializados';
+    const businessType = businessData.businessType?.toLowerCase() || '';
+
+    // Personaliza conteúdo baseado no tipo de negócio
+    const businessConfig = this.getBusinessConfig(businessType, businessData);
     
     return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -523,10 +650,10 @@ export class ContentGenerator {
                         ${title}
                     </h1>
                     <h2 class="h3 text-dark mb-4 opacity-90">
-                        ${businessData.businessType || 'Serviços Especializados'}
+                        ${businessConfig.subtitle}
                     </h2>
                     <p class="lead text-dark mb-5 opacity-85">
-                        ${description}
+                        ${businessConfig.heroDescription}
                     </p>
                     <div class="d-flex gap-3 flex-wrap">
                         <a href="#contato" class="btn btn-primary btn-lg px-4 py-3">
@@ -538,7 +665,7 @@ export class ContentGenerator {
                     </div>
                 </div>
                 <div class="col-lg-6 text-center">
-                    <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                    <img src="${businessConfig.heroImage}" 
                          alt="${title}" class="img-fluid rounded shadow-lg">
                 </div>
             </div>
@@ -549,31 +676,21 @@ export class ContentGenerator {
     <section id="servicos" class="section bg-light">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="section-title">Nossos Serviços</h2>
-                <p class="lead">Oferecemos soluções completas</p>
+                <h2 class="section-title">${businessConfig.servicesTitle}</h2>
+                <p class="lead">${businessConfig.servicesDescription}</p>
             </div>
             <div class="row g-4">
-                ${businessData.services ? businessData.services.split(',').map((service: string, index: number) => `
+                ${businessConfig.services.map(service => `
                     <div class="col-md-6 col-lg-4">
                         <div class="card h-100 shadow-sm border-0">
                             <div class="card-body text-center p-4">
-                                <i class="fas fa-star text-primary mb-3" style="font-size: 2rem;"></i>
-                                <h5 class="card-title">${service.trim()}</h5>
-                                <p class="card-text text-muted">Serviço especializado em ${service.trim().toLowerCase()} com qualidade garantida.</p>
+                                <i class="${service.icon} text-primary mb-3" style="font-size: 2rem;"></i>
+                                <h5 class="card-title">${service.title}</h5>
+                                <p class="card-text text-muted">${service.description}</p>
                             </div>
                         </div>
                     </div>
-                `).join('') : `
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body text-center p-4">
-                                <i class="fas fa-star text-primary mb-3" style="font-size: 2rem;"></i>
-                                <h5 class="card-title">Serviço Premium</h5>
-                                <p class="card-text text-muted">Oferecemos serviços de alta qualidade com atendimento personalizado.</p>
-                            </div>
-                        </div>
-                    </div>
-                `}
+                `).join('')}
             </div>
         </div>
     </section>
@@ -584,7 +701,7 @@ export class ContentGenerator {
             <div class="row align-items-center">
                 <div class="col-lg-6">
                     <h2 class="section-title">Sobre ${title}</h2>
-                    <p class="lead mb-4">${description}</p>
+                    <p class="lead mb-4">${businessConfig.aboutDescription}</p>
                     <div class="row g-3">
                         <div class="col-sm-6">
                             <div class="d-flex align-items-center">
@@ -601,8 +718,8 @@ export class ContentGenerator {
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
-                         alt="Sobre nós" class="img-fluid rounded shadow">
+                    <img src="${businessConfig.aboutImage}" 
+                         alt="Sobre ${title}" class="img-fluid rounded shadow">
                 </div>
             </div>
         </div>
