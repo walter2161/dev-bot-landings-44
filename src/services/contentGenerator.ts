@@ -89,17 +89,21 @@ export interface SellerbotConfig {
   };
 }
 
+// Usar OpenAI como motor de IA principal
+const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+
 export class ContentGenerator {
   private async makeRequest(prompt: string): Promise<string> {
     try {
-      const response = await fetch(DEEPSEEK_API_URL, {
+      // Usar a API OpenAI integrada do Lovable
+      const response = await fetch(OPENAI_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${DEEPSEEK_API_KEY}`,
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`, // Chave do Lovable
         },
         body: JSON.stringify({
-          model: "deepseek-chat",
+          model: "gpt-4.1-2025-04-14",
           messages: [
             { role: "user", content: prompt }
           ],
@@ -111,6 +115,9 @@ export class ContentGenerator {
       if (!response.ok) {
         if (response.status === 429) {
           throw new Error(`API error: Limite de uso excedido. Aguarde alguns minutos e tente novamente.`);
+        }
+        if (response.status === 402) {
+          throw new Error(`API error: Saldo insuficiente na chave API.`);
         }
         throw new Error(`API error: ${response.statusText}`);
       }
