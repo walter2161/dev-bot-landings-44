@@ -1099,7 +1099,7 @@ export class LandingPageBuilder {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer aynCSftAcQBOlxmtmpJqVzco8K4aaTDQ'
+                        'Authorization': 'Bearer eAa9Xuf7IpJElU8coKj3YWRtTLFU9tYl'
                     },
                     body: JSON.stringify({
                         model: 'mistral-large-latest',
