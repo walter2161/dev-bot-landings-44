@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Modern Design System for ChatDev Landing Page Generator
+/* Modern Design System for PageJet Landing Page Generator
 All colors MUST be HSL.
 */
 
@@ -38,11 +38,11 @@ All colors MUST be HSL.
     --input: 215 25% 15%;
     --ring: 25 95% 53%;
 
-    /* ChatDev specific colors */
-    --chatdev-purple: 25 95% 53%;
-    --chatdev-green: 142 76% 36%;
-    --chatdev-blue: 217 91% 60%;
-    --chatdev-orange: 25 95% 53%;
+    /* PageJet specific colors */
+    --pagejet-purple: 25 95% 53%;
+    --pagejet-green: 142 76% 36%;
+    --pagejet-blue: 217 91% 60%;
+    --pagejet-orange: 25 95% 53%;
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));

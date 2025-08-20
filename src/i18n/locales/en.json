@@ -43,7 +43,7 @@
     "contactInfoPlaceholder": "Email, business phone...",
     "specialOffers": "Special Offers",
     "specialOffersPlaceholder": "Promotions, discounts, packages...",
-    "updateChatDev": "Update PageJet",
+    "updatePageJet": "Update PageJet",
     "logoError": "Please select a valid image file"
   },
   "chat": {

@@ -357,7 +357,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLandingPageGenerated, businessData:
                   }
                 }}
               >
-                {t('briefing.updateChatDev')}
+                {t('briefing.updatePageJet')}
               </Button>
             </Card>
           </div>

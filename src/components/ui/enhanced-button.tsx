@@ -16,7 +16,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         hero: "bg-gradient-primary text-primary-foreground shadow-primary hover:shadow-glow transform hover:scale-105 transition-all duration-300",
         accent: "bg-gradient-accent text-accent-foreground shadow-accent hover:shadow-glow transform hover:scale-105",
-        chatdev: "bg-gradient-hero text-foreground shadow-glow hover:shadow-primary transform hover:scale-105 font-semibold",
+        pagejet: "bg-gradient-hero text-foreground shadow-glow hover:shadow-primary transform hover:scale-105 font-semibold",
       },
       size: {
         default: "h-9 px-4 py-2",
