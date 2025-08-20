@@ -152,15 +152,15 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
           }
         },
         sellerbot: {
-          name: sellerbotData.name.trim() || businessData.sellerbot.name,
-          personality: sellerbotData.personality.trim() || businessData.sellerbot.personality,
-          knowledge: sellerbotData.knowledge.trim() ? sellerbotData.knowledge.split(',').map(k => k.trim()) : businessData.sellerbot.knowledge,
-          prohibitions: sellerbotData.prohibitions.trim() || businessData.sellerbot.prohibitions || "",
+          name: sellerbotData.name.trim() || businessData.sellerbot?.name || "Assistente",
+          personality: sellerbotData.personality.trim() || businessData.sellerbot?.personality || "Atencioso e profissional",
+          knowledge: sellerbotData.knowledge.trim() ? sellerbotData.knowledge.split(',').map(k => k.trim()) : businessData.sellerbot?.knowledge || [],
+          prohibitions: sellerbotData.prohibitions.trim() || businessData.sellerbot?.prohibitions || "",
           responses: {
-            greeting: sellerbotData.greeting.trim() || businessData.sellerbot.responses.greeting,
-            services: sellerbotData.services.trim() || businessData.sellerbot.responses.services,
-            pricing: sellerbotData.pricing.trim() || businessData.sellerbot.responses.pricing,
-            appointment: sellerbotData.appointment.trim() || businessData.sellerbot.responses.appointment,
+            greeting: sellerbotData.greeting.trim() || businessData.sellerbot?.responses?.greeting || "Olá! Como posso ajudá-lo?",
+            services: sellerbotData.services.trim() || businessData.sellerbot?.responses?.services || "Conheça nossos serviços",
+            pricing: sellerbotData.pricing.trim() || businessData.sellerbot?.responses?.pricing || "Entre em contato para preços",
+            appointment: sellerbotData.appointment.trim() || businessData.sellerbot?.responses?.appointment || "Vamos agendar?",
           },
           media: {
             images: [],
@@ -179,7 +179,7 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
     }
   };
 
-  if (!businessData) {
+  if (!businessData || !businessData.sellerbot) {
     return (
       <div className="p-6 text-center text-muted-foreground">
         <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -260,7 +260,7 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
               id="sellerbot-name"
               value={sellerbotData.name}
               onChange={(e) => handleChange("name", e.target.value)}
-              placeholder={businessData.sellerbot.name}
+              placeholder={businessData.sellerbot?.name || "Nome do assistente"}
             />
           </div>
 
@@ -270,7 +270,7 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
               id="sellerbot-personality"
               value={sellerbotData.personality}
               onChange={(e) => handleChange("personality", e.target.value)}
-              placeholder={businessData.sellerbot.personality}
+              placeholder={businessData.sellerbot?.personality || "Personalidade do assistente"}
               rows={3}
             />
           </div>
@@ -281,9 +281,9 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
               id="sellerbot-knowledge"
               value={sellerbotData.knowledge}
               onChange={(e) => handleChange("knowledge", e.target.value)}
-              placeholder={Array.isArray(businessData.sellerbot.knowledge) 
+              placeholder={Array.isArray(businessData.sellerbot?.knowledge) 
                 ? businessData.sellerbot.knowledge.join(", ") 
-                : businessData.sellerbot.knowledge || ""}
+                : businessData.sellerbot?.knowledge || "Conhecimentos do assistente"}
               rows={2}
             />
           </div>
@@ -316,7 +316,7 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
               id="sellerbot-greeting"
               value={sellerbotData.greeting}
               onChange={(e) => handleChange("greeting", e.target.value)}
-              placeholder={businessData.sellerbot.responses.greeting}
+              placeholder={businessData.sellerbot?.responses?.greeting || "Saudação inicial"}
               rows={2}
             />
           </div>
@@ -327,7 +327,7 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
               id="sellerbot-services"
               value={sellerbotData.services}
               onChange={(e) => handleChange("services", e.target.value)}
-              placeholder={businessData.sellerbot.responses.services}
+              placeholder={businessData.sellerbot?.responses?.services || "Apresentação de serviços"}
               rows={2}
             />
           </div>
@@ -338,7 +338,7 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
               id="sellerbot-pricing"
               value={sellerbotData.pricing}
               onChange={(e) => handleChange("pricing", e.target.value)}
-              placeholder={businessData.sellerbot.responses.pricing}
+              placeholder={businessData.sellerbot?.responses?.pricing || "Informações sobre preços"}
               rows={2}
             />
           </div>
@@ -349,7 +349,7 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
               id="sellerbot-appointment"
               value={sellerbotData.appointment}
               onChange={(e) => handleChange("appointment", e.target.value)}
-              placeholder={businessData.sellerbot.responses.appointment}
+              placeholder={businessData.sellerbot?.responses?.appointment || "Agendamento e contato"}
               rows={2}
             />
           </div>

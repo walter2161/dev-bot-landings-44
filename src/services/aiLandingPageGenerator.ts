@@ -259,33 +259,90 @@ O conteúdo deve ser envolvente, profissional e otimizado para conversão.`;
    */
   private async generateAndConvertImage(prompt: string, width: number = 1200, height: number = 800): Promise<string> {
     try {
-      // URL encoding do prompt
-      const encodedPrompt = encodeURIComponent(prompt);
-      const imageUrl = `${POLLINATIONS_API_URL}/${encodedPrompt}?width=${width}&height=${height}&model=flux&enhance=true`;
+      console.log(`Generating image: ${prompt}`);
       
-      // Buscar a imagem
-      const response = await fetch(imageUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to generate image: ${response.status}`);
+      // Lista de APIs de fallback
+      const imageApis = [
+        // Pollinations.ai
+        `${POLLINATIONS_API_URL}/${encodeURIComponent(prompt)}?width=${width}&height=${height}&model=flux&enhance=true`,
+        // Fallback para Pollinations sem parâmetros extras
+        `${POLLINATIONS_API_URL}/${encodeURIComponent(prompt)}?width=${width}&height=${height}`,
+        // Picsum para placeholder (não relacionado ao prompt, mas funcional)
+        `https://picsum.photos/${width}/${height}?random=${Math.floor(Math.random() * 1000)}`
+      ];
+
+      for (let i = 0; i < imageApis.length; i++) {
+        try {
+          console.log(`Trying image API ${i + 1}/${imageApis.length}: ${imageApis[i]}`);
+          
+          const response = await fetch(imageApis[i], {
+            method: 'GET',
+            headers: {
+              'Accept': 'image/*',
+            },
+          });
+
+          if (!response.ok) {
+            console.warn(`API ${i + 1} failed with status: ${response.status}`);
+            continue;
+          }
+
+          // Converter para blob e depois base64
+          const blob = await response.blob();
+          
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const result = reader.result as string;
+              console.log(`Successfully generated image using API ${i + 1}`);
+              resolve(result);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+
+        } catch (apiError) {
+          console.warn(`API ${i + 1} error:`, apiError);
+          continue;
+        }
       }
 
-      // Converter para blob e depois base64
-      const blob = await response.blob();
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result as string;
-          resolve(result);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
+      // Se todas as APIs falharam, retornar placeholder gradient
+      console.warn('All image APIs failed, using gradient placeholder');
+      return this.createGradientPlaceholder(width, height);
 
     } catch (error) {
       console.error('Error generating image:', error);
-      // Retorna um placeholder base64 de 1x1 pixel transparente
-      return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+      return this.createGradientPlaceholder(width, height);
     }
+  }
+
+  /**
+   * Cria um placeholder gradient como fallback
+   */
+  private createGradientPlaceholder(width: number, height: number): string {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    
+    if (ctx) {
+      // Criar gradient colorido
+      const gradient = ctx.createLinearGradient(0, 0, width, height);
+      gradient.addColorStop(0, '#667eea');
+      gradient.addColorStop(1, '#764ba2');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+      
+      // Adicionar texto indicativo
+      ctx.fillStyle = 'white';
+      ctx.font = `${Math.min(width, height) / 20}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.fillText('Imagem Placeholder', width / 2, height / 2);
+    }
+    
+    return canvas.toDataURL('image/png');
   }
 
   /**
