@@ -1,5 +1,5 @@
-const MISTRAL_API_KEY = "eAa9Xuf7IpJElU8coKj3YWRtTLFU9tYl";
-const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
+const DEEPSEEK_API_KEY = "sk-e2e18d0b88b64c8e9dd71fcdfdb9d00a";
+const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 
 export interface BusinessContent {
   title: string;
@@ -92,14 +92,14 @@ export interface SellerbotConfig {
 export class ContentGenerator {
   private async makeRequest(prompt: string): Promise<string> {
     try {
-      const response = await fetch(MISTRAL_API_URL, {
+      const response = await fetch(DEEPSEEK_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${MISTRAL_API_KEY}`,
+          "Authorization": `Bearer ${DEEPSEEK_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "mistral-large-latest",
+          model: "deepseek-chat",
           messages: [
             { role: "user", content: prompt }
           ],

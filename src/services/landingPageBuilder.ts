@@ -1095,14 +1095,14 @@ export class LandingPageBuilder {
             input.value = '';
 
             try {
-                const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+                const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eAa9Xuf7IpJElU8coKj3YWRtTLFU9tYl'
+                        'Authorization': 'Bearer sk-e2e18d0b88b64c8e9dd71fcdfdb9d00a'
                     },
                     body: JSON.stringify({
-                        model: 'mistral-large-latest',
+                        model: 'deepseek-chat',
                         messages: [{
                             role: 'user',
                             content: \`Você é \${businessData.sellerbot.name}, assistente específico do negócio: \${businessData.title}.

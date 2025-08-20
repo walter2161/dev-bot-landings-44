@@ -2,7 +2,7 @@
   "app": {
     "title": "PageJet",
     "subtitle": "Gerador de Landing Page",
-    "poweredBy": "PageJet AI - Powered by Mistral"
+    "poweredBy": "PageJet AI - Powered by DeepSeek"
   },
   "navigation": {
     "chat": "Chat",
