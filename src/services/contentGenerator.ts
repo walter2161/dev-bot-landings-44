@@ -29,12 +29,105 @@ export interface BusinessContent {
   address?: string;
   goal?: string;
   specialOffers?: string;
+  title?: string;
+  subtitle?: string;
+  heroText?: string;
+  ctaText?: string;
+  sections?: Array<{
+    id: string;
+    title: string;
+    content: string;
+    type: string;
+  }>;
+  images?: {
+    hero?: string;
+    services?: string;
+    about?: string;
+    testimonials?: string;
+    gallery?: string[];
+    [key: string]: string | string[] | undefined;
+  };
+  customImages?: {
+    [key: string]: string;
+  };
+  colors?: {
+    primary?: string;
+    secondary?: string;
+    accent?: string;
+  };
+  contact?: {
+    phone?: string;
+    email?: string;
+    address?: string;
+    whatsapp?: string;
+    socialMedia?: {
+      facebook?: string;
+      instagram?: string;
+      linkedin?: string;
+      whatsapp?: string;
+    };
+  };
+  sellerbot?: {
+    name?: string;
+    personality?: string;
+    instructions?: string;
+    whatsapp?: string;
+    businessHours?: string;
+    specialOffers?: string;
+    knowledge?: string | string[];
+    prohibitions?: string;
+    responses?: {
+      [key: string]: string;
+    };
+    media?: {
+      images?: string[];
+      links?: Array<{
+        title?: string;
+        url: string;
+        description?: string;
+      }>;
+    };
+  };
+  seo?: {
+    title?: string;
+    description?: string;
+    keywords?: string[];
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+    twitterTitle?: string;
+    twitterDescription?: string;
+    twitterImage?: string;
+    googleAnalytics?: string;
+    facebookPixel?: string;
+    customScripts?: string;
+    structuredData?: string;
+    canonicalUrl?: string;
+    googleAnalyticsId?: string;
+    googleTagManagerId?: string;
+    facebookPixelId?: string;
+    customHeadTags?: string;
+    customBodyTags?: string;
+  };
+  layouts?: string;
 }
 
 export interface SEOData {
-  title: string;
-  description: string;
-  keywords: string[];
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string;
+  canonicalUrl?: string;
+  googleAnalyticsId?: string;
+  googleTagManagerId?: string;
+  facebookPixelId?: string;
+  customHeadTags?: string;
+  structuredData?: string;
 }
 
 export class ContentGenerator {

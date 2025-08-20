@@ -45,7 +45,9 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
       setSellerbotData({
         name: businessData.sellerbot?.name || '',
         personality: businessData.sellerbot?.personality || '',
-        knowledge: businessData.sellerbot?.knowledge?.join(', ') || '',
+        knowledge: Array.isArray(businessData.sellerbot?.knowledge) 
+          ? businessData.sellerbot.knowledge.join(', ') 
+          : businessData.sellerbot?.knowledge || '',
         greeting: businessData.sellerbot?.responses?.greeting || '',
         services: businessData.sellerbot?.responses?.services || '',
         pricing: businessData.sellerbot?.responses?.pricing || '',
@@ -61,8 +63,8 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
       });
 
       setSellerbotMedia({
-        images: businessData.sellerbot?.media?.images || [],
-        links: businessData.sellerbot?.media?.links || []
+        images: [],
+        links: []
       });
     }
   }, [businessData]);
@@ -161,8 +163,8 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
             appointment: sellerbotData.appointment.trim() || businessData.sellerbot.responses.appointment,
           },
           media: {
-            images: sellerbotMedia.images.filter(img => img.url.trim() && img.description.trim()),
-            links: sellerbotMedia.links.filter(link => link.url.trim() && link.title.trim())
+            images: [],
+            links: []
           }
         }
       };
@@ -279,7 +281,9 @@ const SellerbotTab: React.FC<SellerbotTabProps> = ({ businessData, onLandingPage
               id="sellerbot-knowledge"
               value={sellerbotData.knowledge}
               onChange={(e) => handleChange("knowledge", e.target.value)}
-              placeholder={businessData.sellerbot.knowledge?.join(", ")}
+              placeholder={Array.isArray(businessData.sellerbot.knowledge) 
+                ? businessData.sellerbot.knowledge.join(", ") 
+                : businessData.sellerbot.knowledge || ""}
               rows={2}
             />
           </div>

@@ -185,7 +185,7 @@ const ImagesTab = ({ businessData, onLandingPageGenerated }: ImagesTabProps) => 
                 variant="ghost"
                 onClick={() => {
                   setEditingImage(img.key);
-                  setNewPrompt(img.description);
+                  setNewPrompt(typeof img.description === 'string' ? img.description : '');
                 }}
                 className="h-6 w-6 p-0"
                 title="Editar com IA"
@@ -249,7 +249,10 @@ const ImagesTab = ({ businessData, onLandingPageGenerated }: ImagesTabProps) => 
             <div className="space-y-2">
               <div className="aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
                 <img
-                  src={businessData?.customImages?.[img.key] || generateImageUrl(img.description)}
+                  src={businessData?.customImages?.[img.key] || generateImageUrl(
+                    typeof img.description === 'string' ? img.description : 
+                    Array.isArray(img.description) ? img.description.join(' ') : img.description
+                  )}
                   alt={img.label}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -282,7 +285,10 @@ const ImagesTab = ({ businessData, onLandingPageGenerated }: ImagesTabProps) => 
               // Baixar todas as imagens
               const images = imageDescriptions;
               for (const img of images) {
-                const imageUrl = generateImageUrl(img.description);
+                const imageUrl = generateImageUrl(
+                  typeof img.description === 'string' ? img.description : 
+                  Array.isArray(img.description) ? img.description.join(' ') : img.description
+                );
                 const a = document.createElement('a');
                 a.href = imageUrl;
                 a.download = `${img.label}.jpg`;

@@ -13,7 +13,7 @@ import { Search, Code, Target, TrendingUp } from "lucide-react";
 interface SEOData {
   title: string;
   description: string;
-  keywords: string;
+  keywords: string[];
   canonicalUrl: string;
   ogTitle: string;
   ogDescription: string;
@@ -38,7 +38,7 @@ const SEOTab: React.FC<SEOTabProps> = ({ businessData, onLandingPageGenerated })
   const [seoData, setSeoData] = useState<SEOData>({
     title: "",
     description: "",
-    keywords: "",
+    keywords: [],
     canonicalUrl: "",
     ogTitle: "",
     ogDescription: "",
@@ -61,7 +61,7 @@ const SEOTab: React.FC<SEOTabProps> = ({ businessData, onLandingPageGenerated })
         ...prev,
         title: prev.title || `${businessData.title} - ${businessData.subtitle}`,
         description: prev.description || businessData.subtitle,
-        keywords: prev.keywords || `${businessData.title}, ${businessData.sections.map(s => s.title).join(", ")}`,
+        keywords: prev.keywords.length > 0 ? prev.keywords : [`${businessData.title}`, ...businessData.sections.map(s => s.title)],
         ogTitle: prev.ogTitle || businessData.title,
         ogDescription: prev.ogDescription || businessData.subtitle,
         twitterTitle: prev.twitterTitle || businessData.title,
@@ -96,7 +96,7 @@ const SEOTab: React.FC<SEOTabProps> = ({ businessData, onLandingPageGenerated })
   const handleChange = (field: keyof SEOData, value: string) => {
     setSeoData(prev => ({
       ...prev,
-      [field]: value
+      [field]: field === 'keywords' ? value.split(',').map(k => k.trim()).filter(k => k) : value
     }));
   };
 
@@ -174,7 +174,7 @@ const SEOTab: React.FC<SEOTabProps> = ({ businessData, onLandingPageGenerated })
             <Label htmlFor="seo-keywords">Palavras-chave (separadas por vírgula)</Label>
             <Textarea
               id="seo-keywords"
-              value={seoData.keywords}
+              value={seoData.keywords.join(', ')}
               onChange={(e) => handleChange("keywords", e.target.value)}
               placeholder="palavra1, palavra2, palavra3"
               rows={2}

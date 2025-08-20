@@ -120,7 +120,7 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
     try {
       if (chatMode === 'sellerbot' && businessData) {
         // Modo chat com sellerbot
-        const response = await contentGenerator.generateChatResponse(messageToSend, businessData);
+        const response = await contentGenerator.generateChatResponse(messageToSend);
         addMessage('assistant', response);
       } else {
         // Modo geração de landing page - gerar HTML diretamente
@@ -306,6 +306,13 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
     });
     
     return {
+      companyName: title || 'Empresa',
+      businessType: 'Negócio',
+      description: subtitle || 'Descrição do negócio',
+      services: 'Serviços oferecidos',
+      city: 'Cidade',
+      phone: contact.phone || '',
+      email: contact.email || '',
       title,
       subtitle,
       heroText,
@@ -316,7 +323,7 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
       customImages,
       contact,
       sellerbot
-    };
+    } as BusinessContent;
   };
 
   const handleImportClick = () => {
