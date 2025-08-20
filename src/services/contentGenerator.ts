@@ -133,12 +133,14 @@ export class ContentGenerator {
       // Dividir a geração em múltiplas partes
       const parts = await Promise.all([
         this.generateHTMLPart(userRequest, "header", "Gere apenas o <!DOCTYPE html>, <html>, <head> completo com meta tags, title e CSS inline para uma landing page sobre: "),
+        this.generateHTMLPart(userRequest, "navbar", "Gere apenas o header fixo/flutuante (<header>) com navegação para uma landing page sobre: "),
         this.generateHTMLPart(userRequest, "hero", "Gere apenas a seção hero (<section class='hero'>) com título, subtítulo e call-to-action para: "),
         this.generateHTMLPart(userRequest, "about", "Gere apenas a seção sobre (<section class='about'>) explicando o negócio para: "),
         this.generateHTMLPart(userRequest, "services", "Gere apenas a seção de serviços (<section class='services'>) listando os principais serviços para: "),
         this.generateHTMLPart(userRequest, "features", "Gere apenas a seção de diferenciais (<section class='features'>) destacando vantagens para: "),
         this.generateHTMLPart(userRequest, "contact", "Gere apenas a seção de contato (<section class='contact'>) com informações de contato para: "),
-        this.generateHTMLPart(userRequest, "footer", "Gere apenas o footer (<footer>) e scripts JavaScript básicos para: "),
+        this.generateHTMLPart(userRequest, "footer", "Gere apenas o footer (<footer>) completo para: "),
+        this.generateHTMLPart(userRequest, "chatbot", "Gere apenas o chatbot/sellerbot widget fixo com interface de chat funcional para: "),
         this.generateHTMLPart(userRequest, "closing", "Gere apenas as tags de fechamento </body></html>")
       ]);
 
@@ -187,19 +189,62 @@ IMPORTANTE:
     <meta name="description" content="${this.getDescriptionForBusiness(businessType)}">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #333; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #333; padding-top: 70px; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         .section { padding: 80px 0; }
         .section:nth-child(even) { background: #f8f9fa; }
-        .btn { background: ${colors.primary}; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; }
-        .btn:hover { background: ${colors.accent}; }
-        @media (max-width: 768px) { .container { padding: 0 15px; } .section { padding: 60px 0; } }
+        .btn { background: ${colors.primary}; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.3s; }
+        .btn:hover { background: ${colors.accent}; transform: translateY(-2px); }
+        
+        /* Header flutuante */
+        .floating-header { position: fixed; top: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 1000; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: ${colors.primary}; }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: ${colors.primary}; }
+        .mobile-menu { display: none; cursor: pointer; }
+        
+        /* Chat widget */
+        .chat-widget { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+        .chat-button { background: ${colors.primary}; color: white; border: none; border-radius: 50px; padding: 15px 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-size: 16px; transition: all 0.3s; }
+        .chat-button:hover { background: ${colors.accent}; transform: translateY(-3px); }
+        .chat-window { position: absolute; bottom: 70px; right: 0; width: 350px; height: 500px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; }
+        .chat-header { background: ${colors.primary}; color: white; padding: 15px; border-radius: 15px 15px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .chat-messages { height: 350px; overflow-y: auto; padding: 10px; }
+        .chat-input-area { padding: 15px; border-top: 1px solid #eee; }
+        .chat-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 20px; resize: none; }
+        .chat-send { background: ${colors.primary}; color: white; border: none; padding: 8px 15px; border-radius: 15px; margin-top: 5px; cursor: pointer; }
+        
+        @media (max-width: 768px) { 
+            .container { padding: 0 15px; } 
+            .section { padding: 60px 0; } 
+            .nav-links { display: none; }
+            .mobile-menu { display: block; }
+            .chat-window { width: 300px; height: 400px; }
+        }
     </style>
 </head>
 <body>`;
       
+      case "navbar":
+        return `<header class="floating-header">
+    <div class="nav-container">
+        <div class="logo">${this.getTitleForBusiness(businessType)}</div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#inicio">Início</a></li>
+                <li><a href="#sobre">Sobre</a></li>
+                <li><a href="#servicos">Serviços</a></li>
+                <li><a href="#contato">Contato</a></li>
+            </ul>
+            <div class="mobile-menu">☰</div>
+        </nav>
+    </div>
+</header>`;
+      
       case "hero":
-        return `<section class="section" style="background: linear-gradient(135deg, ${colors.primary}, ${colors.secondary}); color: white; text-align: center; min-height: 100vh; display: flex; align-items: center;">
+        return `<section id="inicio" class="section" style="background: linear-gradient(135deg, ${colors.primary}, ${colors.secondary}); color: white; text-align: center; min-height: 100vh; display: flex; align-items: center;">
     <div class="container">
         <h1 style="font-size: 3rem; margin-bottom: 1rem;">${this.getTitleForBusiness(businessType)}</h1>
         <p style="font-size: 1.2rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">${this.getHeroTextForBusiness(businessType)}</p>
@@ -208,7 +253,7 @@ IMPORTANTE:
 </section>`;
       
       case "about":
-        return `<section class="section">
+        return `<section id="sobre" class="section">
     <div class="container">
         <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 2rem; color: ${colors.primary};">Sobre Nós</h2>
         <p style="text-align: center; font-size: 1.1rem; max-width: 800px; margin: 0 auto;">${this.getAboutTextForBusiness(businessType)}</p>
@@ -216,7 +261,7 @@ IMPORTANTE:
 </section>`;
       
       case "services":
-        return `<section class="section">
+        return `<section id="servicos" class="section">
     <div class="container">
         <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 2rem; color: ${colors.primary};">Nossos Serviços</h2>
         <p style="text-align: center; font-size: 1.1rem; max-width: 800px; margin: 0 auto;">${this.getServicesTextForBusiness(businessType)}</p>
@@ -258,14 +303,99 @@ IMPORTANTE:
 </section>`;
       
       case "footer":
-        return `<footer style="background: #333; color: white; padding: 40px 0; text-align: center;">
+        return `<footer style="background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 60px 0 30px;">
     <div class="container">
-        <h3>${this.getTitleForBusiness(businessType)}</h3>
-        <p>© 2024 ${this.getTitleForBusiness(businessType)}. Todos os direitos reservados.</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px;">
+            <div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 20px; color: white;">${this.getTitleForBusiness(businessType)}</h3>
+                <p style="margin-bottom: 15px;">${this.getDescriptionForBusiness(businessType)}</p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 20px;">Contato</h4>
+                <p style="margin-bottom: 10px;">📧 contato@empresa.com</p>
+                <p style="margin-bottom: 10px;">📱 (11) 99999-9999</p>
+                <p>📍 Endereço da empresa</p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 20px;">Redes Sociais</h4>
+                <div style="display: flex; gap: 15px;">
+                    <a href="#" style="color: white; text-decoration: none; font-size: 1.2rem;">📘</a>
+                    <a href="#" style="color: white; text-decoration: none; font-size: 1.2rem;">📷</a>
+                    <a href="#" style="color: white; text-decoration: none; font-size: 1.2rem;">💼</a>
+                </div>
+            </div>
+        </div>
+        <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 30px; text-align: center;">
+            <p>© 2024 ${this.getTitleForBusiness(businessType)}. Todos os direitos reservados.</p>
+        </div>
     </div>
-</footer>
+</footer>`;
+      
+      case "chatbot":
+        return `<div class="chat-widget">
+    <button class="chat-button" onclick="toggleChat()">
+        💬 Falar Conosco
+    </button>
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <strong>Assistente Virtual</strong>
+            <button onclick="toggleChat()" style="background: none; border: none; color: white; cursor: pointer;">✕</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div style="background: #f1f1f1; padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+                Olá! Como posso ajudá-lo hoje? 😊
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <textarea class="chat-input" id="chatInput" placeholder="Digite sua mensagem..." rows="2"></textarea>
+            <button class="chat-send" onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+</div>
 
 <script>
+    let chatOpen = false;
+    
+    function toggleChat() {
+        const chatWindow = document.getElementById('chatWindow');
+        chatOpen = !chatOpen;
+        chatWindow.style.display = chatOpen ? 'block' : 'none';
+    }
+    
+    function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const messages = document.getElementById('chatMessages');
+        const message = input.value.trim();
+        
+        if (message) {
+            // Adicionar mensagem do usuário
+            const userMsg = document.createElement('div');
+            userMsg.style.cssText = 'text-align: right; margin-bottom: 10px;';
+            userMsg.innerHTML = '<div style="background: #007bff; color: white; padding: 10px; border-radius: 10px; display: inline-block;">' + message + '</div>';
+            messages.appendChild(userMsg);
+            
+            // Simular resposta
+            setTimeout(() => {
+                const botMsg = document.createElement('div');
+                botMsg.style.cssText = 'margin-bottom: 10px;';
+                botMsg.innerHTML = '<div style="background: #f1f1f1; padding: 10px; border-radius: 10px; display: inline-block;">Obrigado pela sua mensagem! Em breve entraremos em contato. Para respostas mais rápidas, entre em contato pelo WhatsApp: (11) 99999-9999</div>';
+                messages.appendChild(botMsg);
+                messages.scrollTop = messages.scrollHeight;
+            }, 1000);
+            
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+        }
+    }
+    
+    // Enter para enviar
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    
     // Smooth scroll
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
