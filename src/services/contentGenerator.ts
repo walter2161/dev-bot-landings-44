@@ -124,99 +124,212 @@ export class ContentGenerator {
   }
 
   async generateLandingPageHTML(userRequest: string): Promise<string> {
-    const prompt = `INSTRUÇÃO CRÍTICA: Você DEVE criar uma landing page HTML completa e funcional baseada na solicitação do usuário.
+    try {
+      // Tentar primeiro a API
+      const prompt = `INSTRUÇÃO CRÍTICA: Você DEVE criar uma landing page HTML completa e funcional baseada na solicitação do usuário.
 
 SOLICITAÇÃO DO USUÁRIO: "${userRequest}"
 
-Crie uma landing page HTML responsiva e profissional que contenha:
+Retorne APENAS o HTML completo iniciando com <!DOCTYPE html> e terminando com </html>, sem explicações ou texto adicional.`;
 
-1. DOCTYPE e estrutura HTML5 completa
-2. Meta tags para SEO (title, description, keywords, og tags)
-3. CSS interno responsivo com design moderno
-4. Seções estruturadas (hero, sobre, serviços, contato, etc.)
-5. Chat widget integrado no canto inferior direito
-6. JavaScript para funcionalidades básicas
-7. Cores e design apropriados para o tipo de negócio
-8. Conteúdo específico e relevante para o negócio solicitado
+      const response = await this.makeRequest(prompt);
+      
+      // Limpar e validar a resposta
+      let htmlContent = this.cleanHTMLResponse(response);
+      
+      if (this.isValidHTML(htmlContent)) {
+        console.log("HTML gerado com sucesso via API");
+        return htmlContent;
+      } else {
+        throw new Error("HTML inválido da API");
+      }
+      
+    } catch (error) {
+      console.warn("API falhou, usando template local:", error);
+      // Fallback para template local
+      return this.generateLocalHTML(userRequest);
+    }
+  }
 
-ESTRUTURA OBRIGATÓRIA:
-<!DOCTYPE html>
+  private cleanHTMLResponse(response: string): string {
+    let htmlContent = response.trim();
+    
+    // Remover blocos de código markdown se existirem
+    htmlContent = htmlContent.replace(/```html\s*/gi, '').replace(/```\s*$/, '');
+    
+    // Encontrar início do HTML
+    const htmlStartIndex = htmlContent.indexOf('<!DOCTYPE');
+    if (htmlStartIndex > 0) {
+      htmlContent = htmlContent.substring(htmlStartIndex);
+    }
+    
+    // Encontrar fim do HTML
+    const htmlEndIndex = htmlContent.lastIndexOf('</html>');
+    if (htmlEndIndex !== -1) {
+      htmlContent = htmlContent.substring(0, htmlEndIndex + 7);
+    }
+    
+    return htmlContent;
+  }
+
+  private isValidHTML(html: string): boolean {
+    return html.includes('<!DOCTYPE') && 
+           html.includes('<html') && 
+           html.includes('</html>') &&
+           html.includes('<head>') &&
+           html.includes('<body>');
+  }
+
+  private generateLocalHTML(userRequest: string): string {
+    const businessType = userRequest.toLowerCase();
+    let title, description, content, colors;
+
+    // Determinar tipo de negócio e conteúdo
+    if (businessType.includes('loja') || businessType.includes('roupas') || businessType.includes('moda')) {
+      title = "Estilo & Moda";
+      description = "Sua loja de roupas online com as melhores tendências";
+      content = {
+        hero: "Vista-se com estilo, expresse sua personalidade",
+        about: "Oferecemos as melhores peças de roupa com qualidade e estilo únicos",
+        services: "Roupas casuais, sociais, esportivas e acessórios"
+      };
+      colors = { primary: "#e91e63", secondary: "#f48fb1", accent: "#ad1457" };
+    } else if (businessType.includes('restaurante') || businessType.includes('comida')) {
+      title = "Sabor & Tradição";
+      description = "Restaurante com os melhores pratos da região";
+      content = {
+        hero: "Sabores autênticos que conquistam o paladar",
+        about: "Tradição familiar em cada prato, ingredientes frescos e receitas especiais",
+        services: "Almoço, jantar, delivery e eventos especiais"
+      };
+      colors = { primary: "#ff5722", secondary: "#ff8a65", accent: "#d84315" };
+    } else if (businessType.includes('imobiliario') || businessType.includes('imovel')) {
+      title = "Imóveis Premium";
+      description = "Seu novo lar está aqui - Imóveis de qualidade";
+      content = {
+        hero: "O imóvel dos seus sonhos está aqui",
+        about: "Especialistas em imóveis residenciais e comerciais com as melhores opções",
+        services: "Venda, locação, financiamento e consultoria imobiliária"
+      };
+      colors = { primary: "#2196f3", secondary: "#64b5f6", accent: "#1976d2" };
+    } else {
+      title = "Seu Negócio";
+      description = "Soluções personalizadas para você";
+      content = {
+        hero: "Transforme suas ideias em realidade",
+        about: "Oferecemos serviços de qualidade com atendimento personalizado",
+        services: "Consultorias, serviços especializados e soluções completas"
+      };
+      colors = { primary: "#4caf50", secondary: "#81c784", accent: "#388e3c" };
+    }
+
+    return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[TÍTULO ESPECÍFICO DO NEGÓCIO]</title>
-    <meta name="description" content="[DESCRIÇÃO ESPECÍFICA]">
-    <meta name="keywords" content="[PALAVRAS-CHAVE RELEVANTES]">
+    <title>${title} - ${description}</title>
+    <meta name="description" content="${description}">
+    <meta name="keywords" content="${title}, ${userRequest}, serviços, qualidade">
     <style>
-        /* CSS RESPONSIVO E MODERNO AQUI */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        .hero { 
+            background: linear-gradient(135deg, ${colors.primary}, ${colors.secondary}); 
+            color: white; text-align: center; padding: 100px 0; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; margin-bottom: 2rem; }
+        .cta-button { 
+            background: ${colors.accent}; color: white; padding: 15px 30px; 
+            text-decoration: none; border-radius: 50px; font-weight: bold;
+            display: inline-block; transition: transform 0.3s;
+        }
+        .cta-button:hover { transform: translateY(-2px); }
+        
+        .section { padding: 80px 0; }
+        .section:nth-child(even) { background: #f8f9fa; }
+        .section h2 { font-size: 2.5rem; margin-bottom: 2rem; color: ${colors.primary}; text-align: center; }
+        .section p { font-size: 1.1rem; margin-bottom: 2rem; text-align: center; max-width: 800px; margin-left: auto; margin-right: auto; }
+        
+        .footer { background: #333; color: white; padding: 40px 0; text-align: center; }
+        .footer h3 { margin-bottom: 1rem; }
+        
+        #chat-widget {
+            position: fixed; bottom: 20px; right: 20px; 
+            background: ${colors.primary}; color: white; 
+            padding: 15px; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            .section h2 { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
-    <!-- NAVEGAÇÃO -->
-    <nav>...</nav>
+    <section class="hero">
+        <div class="container">
+            <h1>${title}</h1>
+            <p>${content.hero}</p>
+            <a href="#contato" class="cta-button">Saiba Mais</a>
+        </div>
+    </section>
     
-    <!-- SEÇÃO HERO -->
-    <section class="hero">...</section>
+    <section class="section">
+        <div class="container">
+            <h2>Sobre Nós</h2>
+            <p>${content.about}</p>
+        </div>
+    </section>
     
-    <!-- SEÇÕES DE CONTEÚDO -->
-    <section class="intro">...</section>
-    <section class="services">...</section>
-    <section class="contact">...</section>
+    <section class="section">
+        <div class="container">
+            <h2>Nossos Serviços</h2>
+            <p>${content.services}</p>
+        </div>
+    </section>
     
-    <!-- FOOTER -->
-    <footer>...</footer>
+    <section class="section" id="contato">
+        <div class="container">
+            <h2>Entre em Contato</h2>
+            <p>Entre em contato conosco para saber mais sobre nossos serviços.</p>
+            <p><strong>WhatsApp:</strong> (11) 99999-9999</p>
+            <p><strong>Email:</strong> contato@empresa.com</p>
+        </div>
+    </section>
     
-    <!-- CHAT WIDGET -->
-    <div id="chat-widget">...</div>
+    <footer class="footer">
+        <div class="container">
+            <h3>${title}</h3>
+            <p>© 2024 ${title}. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+    
+    <div id="chat-widget" onclick="openChat()">💬 Chat</div>
     
     <script>
-        // JAVASCRIPT PARA CHAT E FUNCIONALIDADES
+        function openChat() {
+            alert('Chat em desenvolvimento. Entre em contato pelo WhatsApp: (11) 99999-9999');
+        }
+        
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
     </script>
 </body>
-</html>
-
-IMPORTANTE:
-- O HTML deve ser 100% funcional e autocontido
-- Use apenas conteúdo específico do negócio solicitado
-- Inclua informações de contato realistas
-- Chat widget deve usar a API Mistral com a chave: ${MISTRAL_API_KEY}
-- Design responsivo e moderno
-- Cores apropriadas para o tipo de negócio
-
-Retorne APENAS o HTML completo, sem explicações.`;
-
-    try {
-      const response = await this.makeRequest(prompt);
-      console.log("Raw HTML response length:", response.length);
-      
-      // Extrair HTML da resposta
-      let htmlContent = response.trim();
-      
-      // Se há texto antes do HTML, remover
-      const htmlStartIndex = htmlContent.indexOf('<!DOCTYPE');
-      if (htmlStartIndex > 0) {
-        htmlContent = htmlContent.substring(htmlStartIndex);
-      }
-      
-      // Se há texto depois do HTML, remover
-      const htmlEndIndex = htmlContent.lastIndexOf('</html>');
-      if (htmlEndIndex !== -1) {
-        htmlContent = htmlContent.substring(0, htmlEndIndex + 7);
-      }
-      
-      // Validar se é HTML válido
-      if (!htmlContent.includes('<!DOCTYPE') || !htmlContent.includes('</html>')) {
-        throw new Error("HTML inválido gerado pela API");
-      }
-      
-      console.log("Generated HTML preview:", htmlContent.substring(0, 500) + "...");
-      return htmlContent;
-      
-    } catch (error) {
-      console.error("Erro ao gerar HTML:", error);
-      throw new Error("Falha ao gerar landing page HTML. Tente novamente.");
-    }
+</html>`;
   }
 
   // Manter método para chat que ainda precisa de dados estruturados
