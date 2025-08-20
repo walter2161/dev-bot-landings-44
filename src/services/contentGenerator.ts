@@ -157,8 +157,11 @@ Retorne APENAS o HTML completo iniciando com <!DOCTYPE html> e terminando com </
   private cleanHTMLResponse(response: string): string {
     let htmlContent = response.trim();
     
-    // Remover blocos de código markdown se existirem
-    htmlContent = htmlContent.replace(/```html\s*/gi, '').replace(/```\s*$/, '');
+    // Remover blocos de código markdown se existirem (mais agressivo)
+    htmlContent = htmlContent.replace(/```html\s*/gi, '');
+    htmlContent = htmlContent.replace(/```\s*$/g, '');
+    htmlContent = htmlContent.replace(/^```/g, '');
+    htmlContent = htmlContent.replace(/```$/g, '');
     
     // Encontrar início do HTML
     const htmlStartIndex = htmlContent.indexOf('<!DOCTYPE');
@@ -172,15 +175,23 @@ Retorne APENAS o HTML completo iniciando com <!DOCTYPE html> e terminando com </
       htmlContent = htmlContent.substring(0, htmlEndIndex + 7);
     }
     
+    // Limpar espaços extras
+    htmlContent = htmlContent.trim();
+    
     return htmlContent;
   }
 
   private isValidHTML(html: string): boolean {
-    return html.includes('<!DOCTYPE') && 
-           html.includes('<html') && 
-           html.includes('</html>') &&
-           html.includes('<head>') &&
-           html.includes('<body>');
+    const cleanHtml = html.trim();
+    const hasDoctype = cleanHtml.includes('<!DOCTYPE') || cleanHtml.startsWith('<!doctype');
+    const hasHtmlTag = cleanHtml.includes('<html');
+    const hasClosingHtml = cleanHtml.includes('</html>');
+    const hasHead = cleanHtml.includes('<head>') || cleanHtml.includes('<head ');
+    const hasBody = cleanHtml.includes('<body>') || cleanHtml.includes('<body ');
+    
+    console.log('Validação HTML:', { hasDoctype, hasHtmlTag, hasClosingHtml, hasHead, hasBody });
+    
+    return hasDoctype && hasHtmlTag && hasClosingHtml && hasHead && hasBody;
   }
 
   private generateLocalHTML(userRequest: string): string {
