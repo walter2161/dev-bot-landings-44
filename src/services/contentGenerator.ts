@@ -1960,11 +1960,6 @@ if (chatSend) chatSend.addEventListener('click', handleSendMessage);
 if (chatInput) chatInput.addEventListener('keypress', e => {
     if (e.key === 'Enter') handleSendMessage();
 });
-    `;
-  }
-}
-  }
-}
 
 function checkImagesLoaded() {
     const images = document.querySelectorAll('img');
@@ -2255,6 +2250,10 @@ if (chatSend) chatSend.addEventListener('click', handleSendMessage);
 if (chatInput) chatInput.addEventListener('keypress', e => {
     if (e.key === 'Enter') handleSendMessage();
 });
+</script>
+
+</body>
+</html>
     `;
   }
 }
