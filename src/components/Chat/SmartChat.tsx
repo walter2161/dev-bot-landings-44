@@ -42,7 +42,7 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
     };
   }, []);
 
-  const addMessage = (role: 'user' | 'assistant', content: string) => {
+  const addMessage = (role: 'user' | 'assistant', content: string): string => {
     const newMessage: ChatMessage = {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       role,
@@ -50,6 +50,17 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
       timestamp: new Date(),
     };
     setMessages(prev => [...prev, newMessage]);
+    return newMessage.id;
+  };
+
+  const updateMessage = (messageId: string, newContent: string) => {
+    setMessages(prev => 
+      prev.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, content: newContent }
+          : msg
+      )
+    );
   };
 
   const renderBotMessage = (content: string) => {
@@ -117,6 +128,9 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
     }
     setIsGenerating(true);
 
+    // ID da mensagem de status para poder substitui-la depois
+    let statusMessageId: string | null = null;
+
     try {
       if (chatMode === 'sellerbot' && businessData) {
         // Modo chat com sellerbot
@@ -124,7 +138,7 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
         addMessage('assistant', response);
       } else {
         // Modo geração de landing page - usar novo sistema AI
-        addMessage('assistant', 'Analisando sua solicitação e criando landing page personalizada...');
+        statusMessageId = addMessage('assistant', 'Analisando sua solicitação e criando landing page personalizada...');
 
         // Gerar HTML usando o novo sistema AI que processa prompts diretamente
         const html = await contentGenerator.generateLandingPageHTML(messageToSend);
@@ -135,19 +149,33 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
         // Notificar componente pai
         onLandingPageGenerated(html, businessData);
 
-        addMessage('assistant', `✅ Landing page para ${messageToSend} criada com sucesso! Você pode visualizar no preview e fazer o download.`);
+        // Substituir a mensagem de status pela mensagem de sucesso
+        if (statusMessageId) {
+          updateMessage(statusMessageId, `✅ Landing page para "${messageToSend}" criada com sucesso! Você pode visualizar no preview e fazer o download.`);
+        } else {
+          addMessage('assistant', `✅ Landing page para "${messageToSend}" criada com sucesso! Você pode visualizar no preview e fazer o download.`);
+        }
         
         toast.success('Landing page HTML gerada com sucesso!');
       }
     } catch (error) {
       console.error('Erro ao processar mensagem:', error);
       
-      // Verifica se é erro de limite da API
+      // Substituir mensagem de status por mensagem de erro se existir
+      const errorMessage = error.message?.includes('API error') || error.message?.includes('429')
+        ? '⚠️ O serviço está temporariamente sobrecarregado. Aguarde alguns minutos e tente novamente.'
+        : '❌ Desculpe, ocorreu um erro. Tente novamente.';
+      
+      if (statusMessageId) {
+        updateMessage(statusMessageId, errorMessage);
+      } else {
+        addMessage('assistant', errorMessage);
+      }
+      
+      // Toast de erro
       if (error.message?.includes('API error') || error.message?.includes('429')) {
-        addMessage('assistant', '⚠️ O serviço está temporariamente sobrecarregado. Aguarde alguns minutos e tente novamente.');
         toast.error('Serviço temporariamente indisponível');
       } else {
-        addMessage('assistant', '❌ Desculpe, ocorreu um erro. Tente novamente.');
         toast.error('Erro ao processar mensagem');
       }
     } finally {
