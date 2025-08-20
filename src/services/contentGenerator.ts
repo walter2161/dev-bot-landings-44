@@ -104,7 +104,7 @@ export class ContentGenerator {
             { role: "user", content: prompt }
           ],
           temperature: 0.7,
-          max_tokens: 3000,
+          max_tokens: 4000,
         }),
       });
 
@@ -123,166 +123,103 @@ export class ContentGenerator {
     }
   }
 
-  async generateBusinessContent(userRequest: string): Promise<BusinessContent> {
-    const prompt = `INSTRUÇÃO CRÍTICA: Você DEVE retornar APENAS um JSON válido, sem texto adicional antes ou depois.
+  async generateLandingPageHTML(userRequest: string): Promise<string> {
+    const prompt = `INSTRUÇÃO CRÍTICA: Você DEVE criar uma landing page HTML completa e funcional baseada na solicitação do usuário.
 
 SOLICITAÇÃO DO USUÁRIO: "${userRequest}"
 
-Gere um JSON válido e completo seguindo EXATAMENTE esta estrutura:
+Crie uma landing page HTML responsiva e profissional que contenha:
 
-{
-  "title": "Nome/título específico do negócio solicitado",
-  "subtitle": "Descrição específica do que o negócio oferece",
-  "heroText": "Chamada principal específica do negócio",
-  "ctaText": "Ação específica (Comprar, Agendar, Visitar, etc.)",
-  "sections": [
-    {
-      "id": "intro",
-      "title": "Título sobre o produto/serviço específico",
-      "content": "Apresentação objetiva do negócio específico",
-      "type": "intro"
-    },
-    {
-      "id": "motivation",
-      "title": "Por que escolher este negócio específico",
-      "content": "Diferenciais e benefícios específicos",
-      "type": "motivation"
-    },
-    {
-      "id": "target",
-      "title": "Para quem é direcionado",
-      "content": "Público-alvo específico do negócio",
-      "type": "target"
-    },
-    {
-      "id": "method",
-      "title": "Como funciona",
-      "content": "Processo específico do negócio",
-      "type": "method"
-    },
-    {
-      "id": "results",
-      "title": "Resultados esperados",
-      "content": "O que o cliente pode esperar",
-      "type": "results"
-    },
-    {
-      "id": "access",
-      "title": "Como acessar/encontrar",
-      "content": "Formas de acesso ao negócio",
-      "type": "access"
-    },
-    {
-      "id": "investment",
-      "title": "Investimento/Preços",
-      "content": "Informações sobre preços e ofertas",
-      "type": "investment"
-    }
-  ],
-  "colors": {
-    "primary": "#HEXCOLOR",
-    "secondary": "#HEXCOLOR",
-    "accent": "#HEXCOLOR"
-  },
-  "images": {
-    "logo": "logotipo da empresa",
-    "hero": "foto realista específica do negócio",
-    "motivation": "imagem dos diferenciais",
-    "target": "foto do público-alvo",
-    "method": "imagem do processo",
-    "results": "foto dos resultados",
-    "access": "imagem de acesso",
-    "investment": "imagem de preços"
-  },
-  "contact": {
-    "email": "email@negocio.com",
-    "phone": "(XX) XXXXX-XXXX",
-    "address": "Endereço completo",
-    "socialMedia": {
-      "whatsapp": "(XX) 9XXXX-XXXX",
-      "instagram": "@perfil_negocio",
-      "facebook": "facebook.com/pagina"
-    }
-  },
-  "sellerbot": {
-    "name": "Nome do assistente",
-    "personality": "Personalidade adequada",
-    "knowledge": ["conhecimento1", "conhecimento2"],
-    "responses": {
-      "greeting": "Saudação específica",
-      "services": "Apresentação dos serviços",
-      "pricing": "Informação sobre preços",
-      "appointment": "Resposta sobre agendamento"
-    }
-  }
-}
+1. DOCTYPE e estrutura HTML5 completa
+2. Meta tags para SEO (title, description, keywords, og tags)
+3. CSS interno responsivo com design moderno
+4. Seções estruturadas (hero, sobre, serviços, contato, etc.)
+5. Chat widget integrado no canto inferior direito
+6. JavaScript para funcionalidades básicas
+7. Cores e design apropriados para o tipo de negócio
+8. Conteúdo específico e relevante para o negócio solicitado
 
-IMPORTANTE: Retorne APENAS o JSON válido, sem explicações, sem markdown, sem comentários.`;
+ESTRUTURA OBRIGATÓRIA:
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[TÍTULO ESPECÍFICO DO NEGÓCIO]</title>
+    <meta name="description" content="[DESCRIÇÃO ESPECÍFICA]">
+    <meta name="keywords" content="[PALAVRAS-CHAVE RELEVANTES]">
+    <style>
+        /* CSS RESPONSIVO E MODERNO AQUI */
+    </style>
+</head>
+<body>
+    <!-- NAVEGAÇÃO -->
+    <nav>...</nav>
+    
+    <!-- SEÇÃO HERO -->
+    <section class="hero">...</section>
+    
+    <!-- SEÇÕES DE CONTEÚDO -->
+    <section class="intro">...</section>
+    <section class="services">...</section>
+    <section class="contact">...</section>
+    
+    <!-- FOOTER -->
+    <footer>...</footer>
+    
+    <!-- CHAT WIDGET -->
+    <div id="chat-widget">...</div>
+    
+    <script>
+        // JAVASCRIPT PARA CHAT E FUNCIONALIDADES
+    </script>
+</body>
+</html>
+
+IMPORTANTE:
+- O HTML deve ser 100% funcional e autocontido
+- Use apenas conteúdo específico do negócio solicitado
+- Inclua informações de contato realistas
+- Chat widget deve usar a API Mistral com a chave: ${MISTRAL_API_KEY}
+- Design responsivo e moderno
+- Cores apropriadas para o tipo de negócio
+
+Retorne APENAS o HTML completo, sem explicações.`;
 
     try {
       const response = await this.makeRequest(prompt);
-      console.log("Raw API response:", response);
+      console.log("Raw HTML response length:", response.length);
       
-      // Encontrar o JSON na resposta
-      let jsonString = response.trim();
+      // Extrair HTML da resposta
+      let htmlContent = response.trim();
       
-      // Se há texto antes do JSON, remover
-      const jsonStartIndex = jsonString.indexOf('{');
-      if (jsonStartIndex > 0) {
-        jsonString = jsonString.substring(jsonStartIndex);
+      // Se há texto antes do HTML, remover
+      const htmlStartIndex = htmlContent.indexOf('<!DOCTYPE');
+      if (htmlStartIndex > 0) {
+        htmlContent = htmlContent.substring(htmlStartIndex);
       }
       
-      // Se há texto depois do JSON, remover
-      const jsonEndIndex = jsonString.lastIndexOf('}');
-      if (jsonEndIndex !== -1 && jsonEndIndex < jsonString.length - 1) {
-        jsonString = jsonString.substring(0, jsonEndIndex + 1);
+      // Se há texto depois do HTML, remover
+      const htmlEndIndex = htmlContent.lastIndexOf('</html>');
+      if (htmlEndIndex !== -1) {
+        htmlContent = htmlContent.substring(0, htmlEndIndex + 7);
       }
       
-      // Limpar caracteres problemáticos
-      jsonString = jsonString
-        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
-        .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
-        .replace(/\n\s*\n/g, '\n') // Remove empty lines
-        .replace(/\t/g, '  ') // Replace tabs with spaces
-        .trim();
-      
-      console.log("Cleaned JSON string:", jsonString.substring(0, 200) + "...");
-      
-      try {
-        const parsed = JSON.parse(jsonString);
-        
-        // Validar estrutura básica
-        if (!parsed.title || !parsed.sections || !Array.isArray(parsed.sections)) {
-          throw new Error("Estrutura JSON inválida");
-        }
-        
-        return parsed;
-      } catch (parseError) {
-        console.error("JSON parse error:", parseError);
-        console.error("Problematic JSON:", jsonString);
-        
-        // Última tentativa: usar regex para corrigir problemas comuns
-        try {
-          let fixedJson = jsonString
-            .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":') // Quote unquoted keys
-            .replace(/:\s*'([^']*)'/g, ': "$1"') // Convert single quotes to double quotes
-            .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
-            .replace(/([^\\])\\([^"\\\/bfnrt])/g, '$1\\\\$2'); // Fix unescaped backslashes
-          
-          const parsed = JSON.parse(fixedJson);
-          console.log("Successfully parsed with fixes");
-          return parsed;
-        } catch (secondParseError) {
-          console.error("Second parse attempt failed:", secondParseError);
-          throw new Error("Formato JSON inválido retornado pela API. Tente novamente.");
-        }
+      // Validar se é HTML válido
+      if (!htmlContent.includes('<!DOCTYPE') || !htmlContent.includes('</html>')) {
+        throw new Error("HTML inválido gerado pela API");
       }
+      
+      console.log("Generated HTML preview:", htmlContent.substring(0, 500) + "...");
+      return htmlContent;
+      
     } catch (error) {
-      console.error("Erro ao gerar conteúdo:", error);
-      throw new Error("Falha ao gerar conteúdo do negócio. Tente novamente.");
+      console.error("Erro ao gerar HTML:", error);
+      throw new Error("Falha ao gerar landing page HTML. Tente novamente.");
     }
   }
 
+  // Manter método para chat que ainda precisa de dados estruturados
   async generateChatResponse(message: string, businessData: BusinessContent): Promise<string> {
     const mediaInfo = businessData.sellerbot?.media ? `
 
@@ -329,6 +266,64 @@ Responda de forma natural e profissional, focando no negócio específico. Máxi
       console.error("Erro no chat:", error);
       return businessData.sellerbot.responses.greeting;
     }
+  }
+
+  // Método auxiliar para extrair dados básicos do HTML gerado (para compatibilidade)
+  extractBusinessDataFromHTML(htmlContent: string): BusinessContent {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+    
+    const title = doc.querySelector('title')?.textContent || 'Landing Page';
+    const description = doc.querySelector('meta[name="description"]')?.getAttribute('content') || '';
+    
+    return {
+      title,
+      subtitle: description,
+      heroText: doc.querySelector('h1')?.textContent || title,
+      ctaText: doc.querySelector('button, .cta-button')?.textContent || 'Clique aqui',
+      sections: [
+        {
+          id: 'intro',
+          title: 'Sobre',
+          content: description,
+          type: 'intro'
+        }
+      ],
+      colors: {
+        primary: '#007bff',
+        secondary: '#6c757d',
+        accent: '#28a745'
+      },
+      images: {
+        logo: 'Logo da empresa',
+        hero: 'Imagem principal',
+        motivation: 'Imagem motivacional',
+        target: 'Público-alvo',
+        method: 'Método',
+        results: 'Resultados',
+        access: 'Acesso',
+        investment: 'Investimento'
+      },
+      contact: {
+        email: 'contato@empresa.com',
+        phone: '(11) 99999-9999',
+        address: 'Endereço da empresa',
+        socialMedia: {
+          whatsapp: '(11) 99999-9999'
+        }
+      },
+      sellerbot: {
+        name: `Assistente ${title}`,
+        personality: 'Profissional e atencioso',
+        knowledge: ['Informações gerais do negócio'],
+        responses: {
+          greeting: `Olá! Bem-vindo à ${title}. Como posso ajudá-lo?`,
+          services: 'Conheça nossos serviços e produtos.',
+          pricing: 'Entre em contato para conhecer nossos preços.',
+          appointment: 'Agende uma conversa conosco!'
+        }
+      }
+    };
   }
 }
 

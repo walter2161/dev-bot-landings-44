@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Loader2, MessageCircle, Minimize2, Settings, Upload, Bot, User, Send, Plus, Sparkles, FileText, ExternalLink } from 'lucide-react';
 import { contentGenerator, BusinessContent } from '@/services/contentGenerator';
-import { landingPageBuilder } from '@/services/landingPageBuilder';
 import { toast } from 'sonner';
 
 interface SmartChatProps {
@@ -124,23 +123,21 @@ const SmartChat: React.FC<SmartChatProps> = ({ onLandingPageGenerated, briefingP
         const response = await contentGenerator.generateChatResponse(messageToSend, businessData);
         addMessage('assistant', response);
       } else {
-        // Modo geração de landing page
-        addMessage('assistant', 'Analisando sua solicitação e gerando conteúdo específico...');
+        // Modo geração de landing page - gerar HTML diretamente
+        addMessage('assistant', 'Analisando sua solicitação e criando landing page...');
 
-        // Gerar conteúdo específico do negócio
-        const newBusinessData = await contentGenerator.generateBusinessContent(messageToSend);
+        // Gerar HTML diretamente
+        const html = await contentGenerator.generateLandingPageHTML(messageToSend);
         
-        addMessage('assistant', `Conteúdo gerado para: ${newBusinessData.title}. Criando landing page...`);
-
-        // Gerar HTML da landing page
-        const html = await landingPageBuilder.generateHTML(newBusinessData);
-
+        // Extrair dados básicos do HTML para compatibilidade
+        const businessData = contentGenerator.extractBusinessDataFromHTML(html);
+        
         // Notificar componente pai
-        onLandingPageGenerated(html, newBusinessData);
+        onLandingPageGenerated(html, businessData);
 
-        addMessage('assistant', `✅ Landing page criada com sucesso para ${newBusinessData.title}! Você pode visualizar no preview e fazer o download.`);
+        addMessage('assistant', `✅ Landing page criada com sucesso! Você pode visualizar no preview e fazer o download.`);
         
-        toast.success(`Landing page gerada para ${newBusinessData.title}!`);
+        toast.success('Landing page HTML gerada com sucesso!');
       }
     } catch (error) {
       console.error('Erro ao processar mensagem:', error);
