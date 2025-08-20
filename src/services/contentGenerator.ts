@@ -128,32 +128,580 @@ export class ContentGenerator {
 
   async generateLandingPageHTML(userRequest: string): Promise<string> {
     try {
-      console.log("Gerando landing page em partes para:", userRequest);
+      console.log("Gerando landing page completa para:", userRequest);
       
-      // Dividir a geração em múltiplas partes
-      const parts = await Promise.all([
-        this.generateHTMLPart(userRequest, "header", "Gere apenas o <!DOCTYPE html>, <html>, <head> completo com meta tags, title e CSS inline para uma landing page sobre: "),
-        this.generateHTMLPart(userRequest, "navbar", "Gere apenas o header fixo/flutuante (<header>) com navegação para uma landing page sobre: "),
-        this.generateHTMLPart(userRequest, "hero", "Gere apenas a seção hero (<section class='hero'>) com título, subtítulo e call-to-action para: "),
-        this.generateHTMLPart(userRequest, "about", "Gere apenas a seção sobre (<section class='about'>) explicando o negócio para: "),
-        this.generateHTMLPart(userRequest, "services", "Gere apenas a seção de serviços (<section class='services'>) listando os principais serviços para: "),
-        this.generateHTMLPart(userRequest, "features", "Gere apenas a seção de diferenciais (<section class='features'>) destacando vantagens para: "),
-        this.generateHTMLPart(userRequest, "contact", "Gere apenas a seção de contato (<section class='contact'>) com informações de contato para: "),
-        this.generateHTMLPart(userRequest, "footer", "Gere apenas o footer (<footer>) completo para: "),
-        this.generateHTMLPart(userRequest, "chatbot", "Gere apenas o chatbot/sellerbot widget fixo com interface de chat funcional para: "),
-        this.generateHTMLPart(userRequest, "closing", "Gere apenas as tags de fechamento </body></html>")
-      ]);
-
-      // Juntar todas as partes
-      const fullHTML = parts.join('\n');
+      // Extrair informações do pedido do usuário
+      const businessData = this.extractBusinessDataFromRequest(userRequest);
       
-      console.log("HTML gerado com sucesso em partes");
-      return this.cleanAndValidateHTML(fullHTML);
+      return this.generateCompleteHTML(businessData);
       
     } catch (error) {
-      console.warn("Geração em partes falhou, usando template local:", error);
-      return this.generateLocalHTML(userRequest);
+      console.warn("Erro ao gerar HTML:", error);
+      return this.generateFallbackHTML(userRequest);
     }
+  }
+
+  private extractBusinessDataFromRequest(userRequest: string): any {
+    // Extrair informações básicas do pedido
+    const lowerRequest = userRequest.toLowerCase();
+    
+    return {
+      companyName: this.extractCompanyName(userRequest),
+      businessType: this.extractBusinessType(lowerRequest),
+      city: this.extractCity(userRequest),
+      description: this.generateDescription(lowerRequest),
+      phone: "(11) 99999-9999",
+      email: "contato@empresa.com",
+      heroTitle: this.generateHeroTitle(userRequest),
+      heroSubtitle: this.generateHeroSubtitle(lowerRequest),
+      aboutTitle: this.generateAboutTitle(lowerRequest)
+    };
+  }
+
+  private generateCompleteHTML(businessData: any): string {
+    const title = businessData.companyName || 'Sua Empresa';
+    const description = businessData.description || 'Descrição da sua empresa';
+    const city = businessData.city || 'Sua Cidade';
+    const phone = businessData.phone || '(11) 99999-9999';
+    const email = businessData.email || 'contato@empresa.com';
+    
+    return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title} - ${city}</title>
+    <meta name="description" content="${description}" />
+    <meta name="author" content="${title}" />
+    <link rel="icon" href="/lovable-uploads/5a86d691-a877-4647-b08c-a2bddb5e5e71.png" type="image/png">
+
+    <meta property="og:title" content="${title} - ${city}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0066cc;
+            --secondary: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            overflow-x: hidden;
+        }
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://image.pollinations.ai/prompt/${encodeURIComponent(businessData.businessType + ' em ' + city)}');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 150px 0;
+            text-align: center;
+        }
+        .section {
+            padding: 80px 0;
+        }
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+        }
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 30px;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: #0052a3;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 102, 204, 0.2);
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        .testimonial {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .testimonial img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 5px solid #f8f9fa;
+        }
+        .counter {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .cta {
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        .form-control {
+            border-radius: 30px;
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.25);
+        }
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+        .social-icons a:hover {
+            color: var(--primary);
+        }
+        .service-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        .team-member {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .team-member img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 5px solid #f8f9fa;
+        }
+        .process-step {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .process-step .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 20px;
+        }
+        .faq-item {
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .faq-question {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+        }
+        .faq-question:after {
+            content: '\\f107';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            transition: all 0.3s;
+        }
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .faq-item.active .faq-question:after {
+            transform: rotate(180deg);
+        }
+        .faq-item.active .faq-answer {
+            padding: 15px 20px;
+            max-height: 200px;
+        }
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .floating-btn i {
+            font-size: 24px;
+        }
+        .floating-menu {
+            position: fixed;
+            flex-direction: column;
+            bottom: 90px;
+            right: 20px;
+            width: 200px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .floating-menu-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .floating-menu-item:last-child {
+            border-bottom: none;
+        }
+        .floating-menu-item i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        .floating-menu-item:hover {
+            background-color: #f8f9fa;
+        }
+        .chat-modal {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 450px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+        }
+        .chat-input button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .hero {
+                padding: 100px 0;
+            }
+            .section {
+                padding: 60px 0;
+            }
+            .chat-modal {
+                width: 300px;
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h1 class="display-4 fw-bold mb-4">${businessData.heroTitle || `Transforme seu ${businessData.businessType} em ${city}`}</h1>
+                    <p class="lead mb-5">${businessData.heroSubtitle || description}</p>
+                    <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+                        <a href="#contato" class="btn btn-primary btn-lg">Solicitar Orçamento Gratuito</a>
+                        <a href="#servicos" class="btn btn-outline-light btn-lg">Conhecer Nossos Serviços</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre Nós -->
+    <section class="section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h2 class="section-title">Sobre ${title}</h2>
+                    <p class="lead">${businessData.aboutTitle || `Especialistas em ${businessData.businessType} em ${city}`}</p>
+                    <p>${description}</p>
+                    <p>Nossa equipe é composta por profissionais experientes, todos focados em entregar os melhores resultados para nossos clientes.</p>
+                    <a href="#sobre" class="btn btn-primary mt-3">Saiba Mais Sobre Nós</a>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://image.pollinations.ai/prompt/${encodeURIComponent('equipe profissional ' + businessData.businessType)}" class="img-fluid rounded shadow" alt="Equipe profissional">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Serviços -->
+    <section id="servicos" class="section bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Nossos Serviços</h2>
+                <p class="lead">Soluções completas para ${businessData.businessType}</p>
+            </div>
+            <div class="row g-4">
+                ${this.generateServicesCards(businessData)}
+            </div>
+        </div>
+    </section>
+
+    <!-- Resultados -->
+    <section class="section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Resultados Comprovados</h2>
+                <p class="lead">Números que falam por si só</p>
+            </div>
+            <div class="row text-center">
+                <div class="col-md-3 mb-4">
+                    <div class="counter" data-target="95">0</div>
+                    <h5>Satisfação dos Clientes</h5>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="counter" data-target="150">0</div>
+                    <h5>Projetos Concluídos</h5>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="counter" data-target="7">0</div>
+                    <h5>Anos de Experiência</h5>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="counter" data-target="24">0</div>
+                    <h5>Suporte 24h</h5>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Depoimentos -->
+    <section class="section bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">O Que Nossos Clientes Dizem</h2>
+                <p class="lead">Histórias de sucesso reais</p>
+            </div>
+            <div class="row">
+                ${this.generateTestimonials(businessData)}
+            </div>
+        </div>
+    </section>
+
+    <!-- Processo -->
+    <section class="section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Nosso Processo de Trabalho</h2>
+                <p class="lead">Como trabalhamos para entregar os melhores resultados</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="process-step">
+                        <div class="step-number">1</div>
+                        <h4>Análise e Diagnóstico</h4>
+                        <p>Analisamos sua situação atual e identificamos oportunidades de melhoria.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="process-step">
+                        <div class="step-number">2</div>
+                        <h4>Planejamento Estratégico</h4>
+                        <p>Criamos um plano personalizado com base nos seus objetivos e necessidades.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="process-step">
+                        <div class="step-number">3</div>
+                        <h4>Execução e Acompanhamento</h4>
+                        <p>Implementamos as soluções e acompanhamos os resultados continuamente.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Perguntas Frequentes</h2>
+                <p class="lead">Tire suas dúvidas sobre nossos serviços</p>
+            </div>
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    ${this.generateFAQ(businessData)}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="contato" class="cta">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="mb-4">Pronto para Começar?</h2>
+                    <p class="lead mb-5">Entre em contato conosco e descubra como podemos ajudar</p>
+                    <form class="row g-3 justify-content-center">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" placeholder="Seu nome" required>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="email" class="form-control" placeholder="Seu e-mail" required>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-light btn-lg">Solicitar Orçamento Gratuito</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>${title}</h5>
+                    <p>${description}</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>Contato</h5>
+                    <p><i class="fas fa-phone me-2"></i> ${phone}</p>
+                    <p><i class="fas fa-envelope me-2"></i> ${email}</p>
+                    <p><i class="fas fa-map-marker-alt me-2"></i> ${city}</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Siga-nos</h5>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2024 ${title}. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Botão flutuante -->
+    <div class="floating-btn" id="floatingBtn">
+        <i class="fas fa-comments"></i>
+    </div>
+
+    <!-- Menu flutuante -->
+    <div class="floating-menu" id="floatingMenu">
+        <div class="floating-menu-item" id="chatOption">
+            <i class="fas fa-comment"></i> Chat
+        </div>
+        <div class="floating-menu-item" id="whatsappOption">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+        </div>
+    </div>
+
+    <!-- Modal de chat -->
+    <div class="chat-modal" id="chatModal">
+        <div class="chat-header">
+            Chat com ${title}
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Mensagens do chat serão adicionadas aqui -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+            <button id="chatSend">Enviar</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    ${this.generateJavaScript(businessData, phone, email)}
+    </script>
+</body>
+</html>`;
   }
 
   private async generateHTMLPart(userRequest: string, partType: string, promptPrefix: string): Promise<string> {
@@ -800,6 +1348,558 @@ Responda de forma natural e profissional, focando no negócio específico. Máxi
         }
       }
     };
+  }
+  
+  private generateFallbackHTML(userRequest: string): string {
+    return this.generateLocalHTML(userRequest);
+  }
+
+  private extractCompanyName(userRequest: string): string {
+    // Tentativa de extrair nome da empresa
+    const patterns = [
+      /empresa\s+([A-Za-z\s]+)/i,
+      /nome\s+([A-Za-z\s]+)/i,
+      /chamada?\s+([A-Za-z\s]+)/i
+    ];
+    
+    for (const pattern of patterns) {
+      const match = userRequest.match(pattern);
+      if (match) return match[1].trim();
+    }
+    
+    return 'Sua Empresa';
+  }
+
+  private extractBusinessType(request: string): string {
+    if (request.includes('clínica') || request.includes('consultório')) return 'clínica';
+    if (request.includes('salão') || request.includes('beleza')) return 'salão de beleza';
+    if (request.includes('advocacia') || request.includes('advogado')) return 'escritório de advocacia';
+    if (request.includes('contabilidade') || request.includes('contador')) return 'escritório de contabilidade';
+    if (request.includes('marketing') || request.includes('digital')) return 'agência de marketing';
+    if (request.includes('consultoria')) return 'consultoria';
+    if (request.includes('educação') || request.includes('curso')) return 'instituição de ensino';
+    if (request.includes('imóveis') || request.includes('imobiliária')) return 'imobiliária';
+    return 'empresa';
+  }
+
+  private extractCity(userRequest: string): string {
+    const cityPatterns = [
+      /em\s+([A-Za-z\s]+(?:SP|RJ|MG|PR|SC|RS|BA|PE|CE|GO|DF))/i,
+      /cidade\s+([A-Za-z\s]+)/i,
+      /localizada?\s+em\s+([A-Za-z\s]+)/i
+    ];
+    
+    for (const pattern of cityPatterns) {
+      const match = userRequest.match(pattern);
+      if (match) return match[1].trim();
+    }
+    
+    return 'Sua Cidade';
+  }
+
+  private generateDescription(businessType: string): string {
+    const descriptions = {
+      'clínica': 'Cuidamos da sua saúde e bem-estar com excelência e dedicação.',
+      'salão de beleza': 'Realçamos sua beleza natural com profissionalismo e carinho.',
+      'escritório de advocacia': 'Defendemos seus direitos com expertise e compromisso.',
+      'escritório de contabilidade': 'Cuidamos da contabilidade da sua empresa com precisão.',
+      'agência de marketing': 'Impulsionamos seu negócio no mundo digital.',
+      'consultoria': 'Oferecemos soluções estratégicas para o crescimento do seu negócio.',
+      'instituição de ensino': 'Educação de qualidade para formar o futuro.',
+      'imobiliária': 'Encontramos o imóvel dos seus sonhos.'
+    };
+    
+    return descriptions[businessType] || 'Oferecemos serviços de qualidade com excelência e dedicação.';
+  }
+
+  private generateHeroTitle(userRequest: string): string {
+    const businessType = this.extractBusinessType(userRequest.toLowerCase());
+    const city = this.extractCity(userRequest);
+    
+    const titles = {
+      'clínica': `Clínica de Excelência em ${city}`,
+      'salão de beleza': `Salão de Beleza Premium em ${city}`,
+      'escritório de advocacia': `Advocacia Especializada em ${city}`,
+      'escritório de contabilidade': `Contabilidade Confiável em ${city}`,
+      'agência de marketing': `Marketing Digital que Funciona em ${city}`,
+      'consultoria': `Consultoria Estratégica em ${city}`,
+      'instituição de ensino': `Educação de Qualidade em ${city}`,
+      'imobiliária': `Imóveis dos Sonhos em ${city}`
+    };
+    
+    return titles[businessType] || `Sua Empresa de Confiança em ${city}`;
+  }
+
+  private generateHeroSubtitle(businessType: string): string {
+    const subtitles = {
+      'clínica': 'Cuidados médicos especializados com tecnologia de ponta e equipe qualificada.',
+      'salão de beleza': 'Transformamos seu visual com as últimas tendências e produtos de qualidade.',
+      'escritório de advocacia': 'Soluções jurídicas personalizadas para proteger seus interesses.',
+      'escritório de contabilidade': 'Gestão contábil completa para o sucesso do seu negócio.',
+      'agência de marketing': 'Estratégias digitais que geram resultados reais para sua empresa.',
+      'consultoria': 'Orientação especializada para otimizar processos e aumentar lucros.',
+      'instituição de ensino': 'Formação completa com metodologia inovadora e corpo docente especializado.',
+      'imobiliária': 'Encontre o imóvel perfeito com nossa expertise no mercado imobiliário.'
+    };
+    
+    return subtitles[businessType] || 'Soluções personalizadas para suas necessidades específicas.';
+  }
+
+  private generateAboutTitle(businessType: string): string {
+    const titles = {
+      'clínica': 'Especialistas em Cuidados Médicos',
+      'salão de beleza': 'Especialistas em Beleza e Estética',
+      'escritório de advocacia': 'Especialistas em Soluções Jurídicas',
+      'escritório de contabilidade': 'Especialistas em Gestão Contábil',
+      'agência de marketing': 'Especialistas em Marketing Digital',
+      'consultoria': 'Especialistas em Consultoria Empresarial',
+      'instituição de ensino': 'Especialistas em Educação',
+      'imobiliária': 'Especialistas no Mercado Imobiliário'
+    };
+    
+    return titles[businessType] || 'Especialistas no que Fazemos';
+  }
+
+  private generateServicesCards(businessData: any): string {
+    const businessType = businessData.businessType;
+    
+    const servicesByType = {
+      'clínica': [
+        { icon: 'fas fa-stethoscope', title: 'Consultas Especializadas', desc: 'Atendimento médico especializado com profissionais qualificados.' },
+        { icon: 'fas fa-x-ray', title: 'Exames Diagnósticos', desc: 'Equipamentos modernos para diagnósticos precisos e rápidos.' },
+        { icon: 'fas fa-heartbeat', title: 'Acompanhamento Médico', desc: 'Acompanhamento contínuo para sua saúde e bem-estar.' },
+        { icon: 'fas fa-pills', title: 'Tratamentos Personalizados', desc: 'Planos de tratamento adaptados às suas necessidades.' },
+        { icon: 'fas fa-user-md', title: 'Segunda Opinião', desc: 'Orientação médica especializada para tomada de decisões.' },
+        { icon: 'fas fa-calendar-check', title: 'Agendamento Online', desc: 'Sistema prático para marcar suas consultas e exames.' }
+      ],
+      'salão de beleza': [
+        { icon: 'fas fa-cut', title: 'Cortes e Penteados', desc: 'Cortes modernos e penteados para todas as ocasiões.' },
+        { icon: 'fas fa-palette', title: 'Coloração Profissional', desc: 'Técnicas avançadas de coloração com produtos de qualidade.' },
+        { icon: 'fas fa-spa', title: 'Tratamentos Capilares', desc: 'Cuidados especializados para manter seus cabelos saudáveis.' },
+        { icon: 'fas fa-hand-sparkles', title: 'Manicure e Pedicure', desc: 'Cuidados completos para suas unhas com produtos premium.' },
+        { icon: 'fas fa-eye', title: 'Design de Sobrancelhas', desc: 'Modelagem profissional para realçar seu olhar.' },
+        { icon: 'fas fa-leaf', title: 'Tratamentos Naturais', desc: 'Produtos orgânicos e naturais para cuidar da sua beleza.' }
+      ],
+      'escritório de advocacia': [
+        { icon: 'fas fa-gavel', title: 'Direito Civil', desc: 'Assessoria completa em questões civis e contratuais.' },
+        { icon: 'fas fa-briefcase', title: 'Direito Empresarial', desc: 'Suporte jurídico para empresas e empreendedores.' },
+        { icon: 'fas fa-home', title: 'Direito Imobiliário', desc: 'Especialização em transações e conflitos imobiliários.' },
+        { icon: 'fas fa-users', title: 'Direito de Família', desc: 'Orientação sensível em questões familiares e sucessórias.' },
+        { icon: 'fas fa-balance-scale', title: 'Mediação e Arbitragem', desc: 'Soluções alternativas para resolução de conflitos.' },
+        { icon: 'fas fa-file-contract', title: 'Contratos e Documentos', desc: 'Elaboração e revisão de contratos e documentos legais.' }
+      ],
+      'agência de marketing': [
+        { icon: 'fas fa-search', title: 'SEO e SEM', desc: 'Otimização para mecanismos de busca e anúncios pagos.' },
+        { icon: 'fas fa-share-alt', title: 'Redes Sociais', desc: 'Gestão profissional das suas redes sociais.' },
+        { icon: 'fas fa-bullhorn', title: 'Publicidade Digital', desc: 'Campanhas direcionadas para o seu público-alvo.' },
+        { icon: 'fas fa-chart-line', title: 'Analytics e Relatórios', desc: 'Análise detalhada dos resultados das suas campanhas.' },
+        { icon: 'fas fa-pencil-alt', title: 'Criação de Conteúdo', desc: 'Conteúdo estratégico para engajar sua audiência.' },
+        { icon: 'fas fa-laptop', title: 'Desenvolvimento Web', desc: 'Sites responsivos e otimizados para conversão.' }
+      ],
+      'default': [
+        { icon: 'fas fa-star', title: 'Serviço Premium', desc: 'Atendimento diferenciado com foco na excelência.' },
+        { icon: 'fas fa-clock', title: 'Agilidade', desc: 'Entrega rápida sem comprometer a qualidade.' },
+        { icon: 'fas fa-shield-alt', title: 'Confiança', desc: 'Transparência e segurança em todos os processos.' },
+        { icon: 'fas fa-handshake', title: 'Relacionamento', desc: 'Construímos parcerias duradouras com nossos clientes.' },
+        { icon: 'fas fa-cog', title: 'Personalização', desc: 'Soluções adaptadas às suas necessidades específicas.' },
+        { icon: 'fas fa-headset', title: 'Suporte 24/7', desc: 'Atendimento disponível quando você precisar.' }
+      ]
+    };
+    
+    const services = servicesByType[businessType] || servicesByType['default'];
+    
+    return services.map(service => `
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body text-center p-4">
+            <div class="service-icon">
+              <i class="${service.icon}"></i>
+            </div>
+            <h4>${service.title}</h4>
+            <p>${service.desc}</p>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  private generateTestimonials(businessData: any): string {
+    const businessType = businessData.businessType;
+    
+    const testimonialsByType = {
+      'clínica': [
+        { name: 'Ana Silva', company: 'Paciente', text: 'Atendimento excepcional e profissionais altamente qualificados. Recomendo a todos!', image: 'mulher%20satisfeita%20clinica' },
+        { name: 'Carlos Mendes', company: 'Paciente', text: 'Equipamentos modernos e diagnósticos precisos. Mudou minha qualidade de vida.', image: 'homem%20satisfeito%20clinica' },
+        { name: 'Maria Costa', company: 'Paciente', text: 'Cuidado humanizado e resultados excelentes. Equipe sempre atenciosa.', image: 'mulher%20madura%20satisfeita' }
+      ],
+      'salão de beleza': [
+        { name: 'Fernanda Lima', company: 'Cliente', text: 'Sempre saio do salão me sentindo renovada! Profissionais incríveis e ambiente acolhedor.', image: 'mulher%20jovem%20cabelo%20bonito' },
+        { name: 'Juliana Santos', company: 'Cliente', text: 'Transformaram meu visual completamente! Recomendo para todas as amigas.', image: 'mulher%20feliz%20salao%20beleza' },
+        { name: 'Patricia Oliveira', company: 'Cliente', text: 'Qualidade excepcional e atendimento personalizado. Meu salão de confiança há anos.', image: 'mulher%20elegante%20satisfeita' }
+      ],
+      'default': [
+        { name: 'João Silva', company: 'Cliente', text: 'Serviço de qualidade excepcional! Superou todas as minhas expectativas.', image: 'homem%20satisfeito%20profissional' },
+        { name: 'Maria Santos', company: 'Cliente', text: 'Profissionais competentes e atendimento personalizado. Recomendo!', image: 'mulher%20profissional%20satisfeita' },
+        { name: 'Pedro Costa', company: 'Cliente', text: 'Resultados excelentes e prazo cumprido. Parceria de longa data garantida.', image: 'homem%20executivo%20satisfeito' }
+      ]
+    };
+    
+    const testimonials = testimonialsByType[businessType] || testimonialsByType['default'];
+    
+    return testimonials.map(testimonial => `
+      <div class="col-lg-4 mb-4">
+        <div class="testimonial">
+          <p class="mb-4">"${testimonial.text}"</p>
+          <div class="d-flex align-items-center">
+            <img src="https://image.pollinations.ai/prompt/${testimonial.image}" class="rounded-circle me-3" alt="${testimonial.name}">
+            <div>
+              <h5 class="mb-0">${testimonial.name}</h5>
+              <small>${testimonial.company}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  private generateFAQ(businessData: any): string {
+    const businessType = businessData.businessType;
+    
+    const faqsByType = {
+      'clínica': [
+        { question: 'Como agendar uma consulta?', answer: 'Você pode agendar através do nosso site, telefone ou WhatsApp. Temos horários flexíveis para atender suas necessidades.' },
+        { question: 'Vocês atendem convênios?', answer: 'Sim, trabalhamos com os principais convênios médicos. Entre em contato para verificar se o seu está na nossa lista.' },
+        { question: 'Qual o tempo de espera para consultas?', answer: 'Normalmente conseguimos agendar consultas em até 7 dias. Para urgências, temos horários de encaixe disponíveis.' },
+        { question: 'Os exames são realizados no local?', answer: 'Temos equipamentos modernos para diversos tipos de exames. Consulte nossa lista completa de serviços disponíveis.' }
+      ],
+      'salão de beleza': [
+        { question: 'Preciso agendar horário?', answer: 'Recomendamos agendamento para garantir o melhor horário. Também atendemos por ordem de chegada quando possível.' },
+        { question: 'Vocês usam produtos de qualidade?', answer: 'Trabalhamos apenas com produtos profissionais das melhores marcas do mercado, garantindo resultados excepcionais.' },
+        { question: 'Fazem atendimento em domicílio?', answer: 'Sim, oferecemos serviços especiais a domicílio para ocasiões especiais. Consulte condições e disponibilidade.' },
+        { question: 'Oferecem tratamentos para cabelos danificados?', answer: 'Temos tratamentos especializados para reconstrução e hidratação profunda. Nossa equipe avalia e recomenda o melhor.' }
+      ],
+      'default': [
+        { question: 'Como funciona o atendimento?', answer: 'Nosso atendimento é personalizado desde o primeiro contato. Analisamos suas necessidades e criamos a melhor solução.' },
+        { question: 'Qual é o prazo de entrega?', answer: 'Os prazos variam conforme a complexidade do projeto. Sempre informamos um cronograma detalhado no início.' },
+        { question: 'Oferecem garantia dos serviços?', answer: 'Sim, todos os nossos serviços possuem garantia. Trabalhamos até você ficar completamente satisfeito.' },
+        { question: 'Como é feito o orçamento?', answer: 'O orçamento é gratuito e sem compromisso. Entre em contato para avaliarmos suas necessidades específicas.' }
+      ]
+    };
+    
+    const faqs = faqsByType[businessType] || faqsByType['default'];
+    
+    return faqs.map(faq => `
+      <div class="faq-item">
+        <div class="faq-question">${faq.question}</div>
+        <div class="faq-answer">
+          <p>${faq.answer}</p>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  private generateJavaScript(businessData: any, phone: string, email: string): string {
+    return `
+/* =========================
+   1. Forçar carregamento de imagens
+========================== */
+function forceImageLoad(imgElement, fallbackUrl) {
+    imgElement.onerror = function () {
+        console.log("Falha ao carregar imagem, tentando fallback...");
+        this.src = fallbackUrl;
+    };
+}
+
+function checkImagesLoaded() {
+    const images = document.querySelectorAll('img');
+    let allLoaded = true;
+    images.forEach(img => {
+        if (!img.complete) {
+            allLoaded = false;
+            console.log(\`Imagem não carregada: \${img.src}\`);
+        }
+    });
+    console.log(allLoaded ? "Todas as imagens carregadas!" : "Algumas imagens falharam.");
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const images = document.querySelectorAll('img');
+    images.forEach(img => forceImageLoad(img, 'https://via.placeholder.com/150'));
+    setTimeout(checkImagesLoaded, 2000);
+});
+
+/* =========================
+   2. Contador Animado
+========================== */
+const counters = document.querySelectorAll('.counter');
+const speed = 200;
+
+function countUp(counter) {
+    const target = +counter.getAttribute('data-target');
+    const count = +counter.innerText;
+    const increment = target / speed;
+
+    if (count < target) {
+        counter.innerText = Math.ceil(count + increment);
+        setTimeout(() => countUp(counter), 10);
+    } else {
+        counter.innerText = target + '%';
+    }
+}
+
+const observerOptions = { threshold: 0.7 };
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            countUp(entry.target);
+            observer.unobserve(entry.target);
+        }
+    });
+}, observerOptions);
+
+counters.forEach(counter => observer.observe(counter));
+
+/* =========================
+   3. FAQ Accordion
+========================== */
+document.querySelectorAll('.faq-item').forEach(item => {
+    const question = item.querySelector('.faq-question');
+    question.addEventListener('click', () => {
+        document.querySelectorAll('.faq-item.active').forEach(activeItem => {
+            if (activeItem !== item) activeItem.classList.remove('active');
+        });
+        item.classList.toggle('active');
+    });
+});
+
+/* =========================
+   4. Envio de Formulário + WhatsApp
+========================== */
+const form = document.querySelector('form');
+if (form) {
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = this.querySelector('input[type="text"]').value;
+        const email = this.querySelector('input[type="email"]').value;
+
+        if (name && email) {
+            const formContainer = this.parentElement;
+            formContainer.innerHTML = \`
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Obrigado, \${name}!</h4>
+                    <p>Recebemos sua solicitação. Entraremos em contato no e-mail \${email} em até 24 horas.</p>
+                </div>
+            \`;
+            console.log('Form submitted:', { name, email });
+
+            // Também envia para WhatsApp
+            const message = \`Novo formulário recebido:%0ANome: \${name}%0AEmail: \${email}\`;
+            window.open(\`https://wa.me/5511974698846?text=\${message}\`, '_blank');
+        }
+    });
+}
+
+/* =========================
+   5. Botão e Menu Flutuante + Controle Chat
+========================== */
+const floatingBtn = document.getElementById('floatingBtn');
+const floatingMenu = document.getElementById('floatingMenu');
+const chatOption = document.getElementById('chatOption');
+const whatsappOption = document.getElementById('whatsappOption');
+const chatModal = document.getElementById('chatModal');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+
+function openChat() {
+    chatModal.style.display = 'flex';
+    loadChatHistory();
+}
+
+function closeChat() {
+    chatModal.style.display = 'none';
+}
+
+function toggleMenu() {
+    floatingMenu.style.display = floatingMenu.style.display === 'flex' ? 'none' : 'flex';
+}
+
+/* --- Botão flutuante: abre/fecha menu (NÃO fecha chat) --- */
+if (floatingBtn) {
+    floatingBtn.addEventListener('click', () => {
+        toggleMenu();
+    });
+}
+
+/* --- Clicar em "Chat" no menu abre o chat e fecha o menu --- */
+if (chatOption) {
+    chatOption.addEventListener('click', () => {
+        floatingMenu.style.display = 'none';
+        openChat();
+    });
+}
+
+/* --- Clicar em "WhatsApp" no menu abre WhatsApp e fecha menu --- */
+if (whatsappOption) {
+    whatsappOption.addEventListener('click', () => {
+        floatingMenu.style.display = 'none';
+        const phoneNumber = '${phone.replace(/\D/g, '')}';
+        const message = 'Olá, gostaria de mais informações.';
+        window.open(\`https://wa.me/\${phoneNumber}?text=\${encodeURIComponent(message)}\`, '_blank');
+    });
+}
+
+/* --- Fechar chat se clicar fora do chat modal e do menu e do botão flutuante --- */
+document.addEventListener('click', (e) => {
+    if (
+        chatModal.style.display === 'flex' &&
+        !chatModal.contains(e.target) &&
+        !floatingMenu.contains(e.target) &&
+        !floatingBtn.contains(e.target)
+    ) {
+        closeChat();
+    }
+});
+
+/* =========================
+   6. Chat com Mistral AI + histórico e reunião
+========================== */
+let chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+let userMessagesCount = 0;
+let meetingStep = 0; // 0=normal, 1=nome,2=email,3=telefone
+let meetingData = { name: '', email: '', phone: '' };
+
+function saveChatHistory() {
+    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+}
+
+function loadChatHistory() {
+    chatMessages.innerHTML = '';
+    chatHistory.forEach(msg => addMessage(msg.sender, msg.text, false));
+}
+
+function addMessage(sender, message, save = true) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.innerHTML = \`<strong>\${sender}:</strong> \${message}\`;
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    if (save) {
+        chatHistory.push({ sender, text: message });
+        saveChatHistory();
+    }
+}
+
+async function sendMessageToMistralAI(message) {
+    const apiKey = '${MISTRAL_API_KEY}';
+    const url = 'https://api.mistral.ai/v1/chat/completions';
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': \`Bearer \${apiKey}\`
+            },
+            body: JSON.stringify({
+                model: "mistral-tiny",
+                messages: [
+                    {
+                        role: "system",
+                        content: \`Você é um atendente virtual simpático e educado de ${businessData.companyName || 'nossa empresa'}.
+                                Responda SEMPRE em português do Brasil.
+                                Responda em no máximo 1 ou 2 frases curtas.
+                                Se o usuário pedir telefone, responda apenas com o número: ${phone}.
+                                Se o usuário for rude, mantenha a calma e responda de forma amigável.
+                                Evite textos longos ou institucionais.
+                                Faça perguntas adicionais para entender melhor a necessidade do usuário.
+                                Informações da empresa:
+                                - Nome: ${businessData.companyName || 'Sua Empresa'}
+                                - Tipo: ${businessData.businessType || 'empresa'}
+                                - Localização: ${businessData.city || 'Sua Cidade'}
+                                - Telefone: ${phone}
+                                - E-mail: ${email}\`
+                    },
+                    ...chatHistory.slice(-5).map(m => ({
+                        role: m.sender === 'Você' ? 'user' : 'assistant',
+                        content: m.text
+                    })),
+                    { role: "user", content: message }
+                ],
+                max_tokens: 60,
+                temperature: 0.6
+            })
+        });
+
+        if (!response.ok) throw new Error('Erro ao enviar mensagem para a API');
+
+        const data = await response.json();
+        return data.choices[0].message.content;
+    } catch (error) {
+        console.error('Erro:', error);
+        return '⚠️ Desculpe, ocorreu um erro ao processar sua mensagem.';
+    }
+}
+
+async function handleSendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    addMessage('Você', message);
+    chatInput.value = '';
+
+    // fluxo de reunião
+    if (meetingStep > 0) {
+        if (meetingStep === 1) {
+            meetingData.name = message;
+            addMessage('Atendente', 'Qual seu e-mail?');
+            meetingStep = 2;
+            return;
+        } else if (meetingStep === 2) {
+            meetingData.email = message;
+            addMessage('Atendente', 'E seu telefone para contato?');
+            meetingStep = 3;
+            return;
+        } else if (meetingStep === 3) {
+            meetingData.phone = message;
+            addMessage('Atendente', 'Obrigado! Um representante entrará em contato em breve.');
+            // Envia para WhatsApp
+            const wppMessage = \`Agendamento solicitado:%0ANome: \${meetingData.name}%0AEmail: \${meetingData.email}%0ATelefone: \${meetingData.phone}\`;
+            window.open(\`https://wa.me/${phone.replace(/\D/g, '')}?text=\${wppMessage}\`, '_blank');
+            meetingStep = 0;
+            return;
+        }
+    }
+
+    // verifica se aceitou marcar reunião
+    if (meetingStep === -1) {
+        if (/sim/i.test(message)) {
+            meetingStep = 1;
+            addMessage('Atendente', 'Ótimo! Qual seu nome?');
+            return;
+        } else if (/não/i.test(message)) {
+            meetingStep = 0;
+            addMessage('Atendente', 'Tudo bem! Continuamos por aqui então.');
+            return;
+        }
+    }
+
+    userMessagesCount++;
+    const response = await sendMessageToMistralAI(message);
+    addMessage('Atendente', response);
+
+    if (userMessagesCount % 3 === 0) {
+        addMessage('Atendente', 'Deseja marcar uma reunião com um representante? (sim/não)');
+        meetingStep = -1; // aguardando confirmação
+    }
+}
+
+if (chatSend) chatSend.addEventListener('click', handleSendMessage);
+if (chatInput) chatInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') handleSendMessage();
+});
+    `;
   }
 }
 
