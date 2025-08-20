@@ -54,11 +54,11 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				chatdev: {
-					purple: 'hsl(var(--chatdev-purple))',
-					green: 'hsl(var(--chatdev-green))',
-					blue: 'hsl(var(--chatdev-blue))',
-					orange: 'hsl(var(--chatdev-orange))'
+				pagejet: {
+					purple: 'hsl(var(--pagejet-purple))',
+					green: 'hsl(var(--pagejet-green))',
+					blue: 'hsl(var(--pagejet-blue))',
+					orange: 'hsl(var(--pagejet-orange))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
